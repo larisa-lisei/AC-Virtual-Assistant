@@ -1,0 +1,32 @@
+.menu-container {
+    padding: 5px 30px;
+}
+
+.menu-container h2 {
+    color: var(--primary-color);
+    text-align: center;
+    margin: 40px 0;
+}
+
+nav {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    gap: 30px;
+}
+
+.menu-items button {
+    background: none;
+    border: none;
+    color: var(--secondary-color);
+    cursor: pointer;
+    text-decoration: underline;
+    font-size: large;
+    font-weight: bold;
+}
+
+.menu-items button:hover, 
+.menu-items button:focus,
+.menu-items button.is-active {
+    color: var(--primary-color);
+}

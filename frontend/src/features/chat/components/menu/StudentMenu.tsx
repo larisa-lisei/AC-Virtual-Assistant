@@ -1,0 +1,37 @@
+import './MenuComponent.css'
+
+export interface Course {
+    id: number;
+    title: string;
+}
+
+interface StudentMenuProps {
+    courses: Course[];
+    selectedCourseId: number | null;
+    onSelectedCourse: (courseId: number) => void;
+}
+
+export default function StudentMenu({
+    courses,
+    selectedCourseId,
+    onSelectedCourse,
+}: StudentMenuProps) {
+    return (
+        <aside className = "menu-container">
+            <h2>Virtual Assistants</h2>
+
+            <nav className="menu-items">
+                {courses.map((course) => (
+                    <button 
+                        key={course.id}
+                        className={(course.id === selectedCourseId ? 'is-active' : '')}
+                        onClick={() => onSelectedCourse(course.id)}
+                        type="button"
+                    >
+                        {course.title}
+                    </button>
+                ))}
+            </nav>
+        </aside>
+    )
+}

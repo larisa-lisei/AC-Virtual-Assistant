@@ -1,6 +1,8 @@
 :root {
   font-family: Comme, 'Times New Roman', Times, sans-serif;
   --primary-color: #1B2058;
+  --secondary-color: rgb(93, 93, 93);
+  --chat-background:  rgb(235, 237, 255);
 }
 
 html, body, #root {
@@ -9,7 +11,11 @@ html, body, #root {
 }
 
 body {
-  background-color: rgb(235, 237, 255);
+  background-color: white;
+}
+
+body.login-page {
+  background-color: var(--chat-background);
 }
 
 #root {

@@ -1,16 +1,31 @@
 import './LoginPage.css';
 import formImage from '../../assets/login-form.png';
-import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import {TextField, Button} from '@mui/material';
 
 export default function LoginPage() {
+
+    useEffect(() => {
+        document.body.classList.add('login-page');
+
+        return () => {
+            document.body.classList.remove('login-page');
+        };
+    }, []);
+
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+
+    const navigate = useNavigate();
 
     const handleSubmit = (event: React.SubmitEvent<HTMLFormElement>) => {
         event.preventDefault()
 
         //call backend API to authenticate user
+
+        //successsul login - redirect to student chat page
+        navigate("/student/chat");
     };
 
     return (

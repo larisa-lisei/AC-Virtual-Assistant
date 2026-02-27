@@ -1,0 +1,34 @@
+.chat-layout {
+    width: 95%;
+}
+
+.chat-title {
+    width: 100%;
+    color: var(--primary-color);
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.hello-student {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.chat-container {
+    background-color: var(--chat-background);
+    height: 80vh;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: row;
+}
+
+.chat-menu {
+    width: fit-content;
+}
+
+.chat-messages {
+    flex: 1;
+}

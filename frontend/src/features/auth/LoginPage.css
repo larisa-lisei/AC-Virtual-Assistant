@@ -39,7 +39,7 @@
 }
 
 .login-card-info p {
-    color: rgb(93, 93, 93);
+    color: var(--secondary-color);
 }
 
 form {
