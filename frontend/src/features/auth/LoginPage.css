@@ -1,0 +1,55 @@
+.login-card { 
+    background-color: white;
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    border-radius: 15px;
+        box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.1);
+    padding: 70px 40px 70px 40px;
+    gap: 15px;
+    max-height: 50vh;
+    width: 80%;
+    margin-inline: auto;
+}
+
+.login-image-container {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+.login-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.login-card-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: var(--primary-color);
+}
+
+.login-card-info h1 {
+    text-align: center;
+    margin-bottom: 0;
+}
+
+.login-card-info p {
+    color: rgb(93, 93, 93);
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 35px;
+    width: 100%;
+    margin-top: 35px;
+}
+
+Button {
+    align-self: center;
+}
