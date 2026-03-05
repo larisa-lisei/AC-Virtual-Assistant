@@ -9,6 +9,8 @@ interface StudentMenuProps {
     courses: Course[];
     selectedCourseId: number | null;
     onSelectedCourse: (courseId: number) => void;
+    menuOpen: boolean;
+    onToggleMenu: () => void;
 }
 
 export default function StudentMenu({

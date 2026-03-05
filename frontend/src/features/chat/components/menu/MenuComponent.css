@@ -1,5 +1,5 @@
 .menu-container {
-    padding: 5px 30px;
+    padding: 5px 20px;
 }
 
 .menu-container h2 {
@@ -23,6 +23,11 @@ nav {
     text-decoration: underline;
     font-size: large;
     font-weight: bold;
+    white-space: nowrap;
+    overflow: hidden;
+    width: 100%;
+    text-align: left;
+    text-overflow: ellipsis;
 }
 
 .menu-items button:hover, 
@@ -30,3 +35,5 @@ nav {
 .menu-items button.is-active {
     color: var(--primary-color);
 }
+
+
