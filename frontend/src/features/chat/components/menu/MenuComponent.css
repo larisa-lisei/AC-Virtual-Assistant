@@ -58,4 +58,10 @@ nav {
     width: 60%;
 }
 
+.students-expand-button {
+    border-bottom: 2px solid var(--primary-color);
+}
 
+.admin-menu-items {
+    gap: 0;
+}

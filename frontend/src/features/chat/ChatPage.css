@@ -40,6 +40,7 @@
     position: relative;
     width: 355px;
     transition: width 0.4s ease;
+    height: 100%;
 }
 
 .chat-menu.closed {
@@ -48,8 +49,14 @@
 }
 
 .chat-menu-panel {
-    overflow: hidden;
+    height: 95%;
+    overflow-x: hidden;
+    overflow-y: auto;
     transition: transform 0.4s ease;
+}
+
+.chat-menu-panel::-webkit-scrollbar {
+    background-color: transparent;
 }
 
 .chat-menu.closed .chat-menu-panel {

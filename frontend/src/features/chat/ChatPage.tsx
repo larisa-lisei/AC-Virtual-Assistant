@@ -7,6 +7,7 @@ import ProfessorMenu from './components/menu/ProfessorMenu';
 import StudentChatComponent from './components/StudentChatComponent';
 import { useState } from 'react';
 import ProfessorChatComponent from './components/ProfessorChatComponent';
+import AdminMenu from './components/menu/AdminMenu';
 
 type MessageRole = 'user' | 'assistant';
 type UserRole = 'student' | 'professor' | 'admin';
@@ -54,7 +55,8 @@ export default function ChatPage() {
     const[menuOpen, setMenuOpen] = useState(true);
 
     //const [user, setUser] = useState<User>({role: 'student'});
-    const [user, setUser] = useState<User>({role: 'professor'});
+    //const [user, setUser] = useState<User>({role: 'professor'});
+    const [user, setUser] = useState<User>({role: 'admin'});
 
     const selectedCourse = selectedCourseId !== null
         ? courses.find(
@@ -73,6 +75,20 @@ export default function ChatPage() {
         setMenuOpen((v) => !v)
     }
 
+    const roleMenus = {
+        student: (
+            <StudentMenu
+                courses={courses}
+                selectedCourseId={selectedCourseId}
+                onSelectedCourse={handleSelectedCourse}
+                onToggleMenu={onToggleMenu}
+                menuOpen={menuOpen}
+            />
+        ),
+        professor:  <ProfessorMenu />,
+        admin: <AdminMenu />
+    }
+
     return (
         <div className="chat-layout">
             <div className="chat-title">
@@ -82,17 +98,7 @@ export default function ChatPage() {
             <div className="chat-container">
                 <div className={`chat-menu ${menuOpen ? 'open' : 'closed'}`}>
                     <div className="chat-menu-panel">
-                        {user.role == 'student' ?
-                            <StudentMenu
-                                courses={courses}
-                                selectedCourseId={selectedCourseId}
-                                onSelectedCourse={handleSelectedCourse}
-                                onToggleMenu={onToggleMenu}
-                                menuOpen={menuOpen}
-                            />
-                        : 
-                            <ProfessorMenu />
-                        }
+                        {roleMenus[user.role]}
                     </div>
 
                     <button className = {`menu-button ${menuOpen ? 'open' : 'closed'}`} type = "button" onClick={onToggleMenu}>

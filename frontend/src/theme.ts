@@ -25,5 +25,28 @@ export const theme = createTheme({
                 },
             },
         },
+        MuiListItemButton: {
+            styleOverrides: {
+                root: {
+                    '&.Mui-selected .MuiTypography-root': {
+                        color: '#1B2058',
+                    },
+                    '&.leaf-button.Mui-selected': {
+                        backgroundColor: '#1B2058',
+                    },
+                    '&.leaf-button.Mui-selected .MuiTypography-root': {
+                        color: 'white',
+                    },
+                },
+            },
+        },
+        MuiListItemText: {
+            styleOverrides : {
+                primary: {
+                    fontWeight: 650,
+                    color: 'rgb(93, 93, 93)',
+                },
+            },
+        },
     },
 });
