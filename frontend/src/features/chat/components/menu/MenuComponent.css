@@ -5,7 +5,7 @@
 .menu-container h2 {
     color: var(--primary-color);
     text-align: center;
-    margin: 40px 0;
+    margin: 80px 0px 40px 0px;
 }
 
 nav {
@@ -34,6 +34,28 @@ nav {
 .menu-items button:focus,
 .menu-items button.is-active {
     color: var(--primary-color);
+}
+
+.menu-container.professor {
+    white-space: nowrap;
+    text-overflow: ellipse;
+}
+
+.professor-menu-items button {
+    width: 60%;
+    font-size: medium;
+    white-space: nowrap;
+}
+
+.professor-hints-item {
+    font-size: 1.4em;
+    font-weight: bold;
+    color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    align-self: center;
+    width: 60%;
 }
 
 

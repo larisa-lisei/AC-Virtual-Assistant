@@ -1,12 +1,12 @@
 import './chatComponent.css';
-import type { Course } from './menu/StudentMenu';
+import type { Course } from '../ChatPage';
 import SendIcon from '@mui/icons-material/Send';
 
-interface ChatComponentProps {
+interface StudentChatComponentProps {
     selectedCourse?: Course;
 }
 
-export default function ChatComponent({ selectedCourse }: ChatComponentProps) {
+export default function ChatComponent({ selectedCourse }: StudentChatComponentProps) {
     //no course selected - welcome message
     if (!selectedCourse) {
         return (

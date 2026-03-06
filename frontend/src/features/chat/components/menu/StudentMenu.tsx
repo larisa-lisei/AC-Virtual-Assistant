@@ -19,7 +19,7 @@ export default function StudentMenu({
     onSelectedCourse,
 }: StudentMenuProps) {
     return (
-        <aside className = "menu-container">
+        <aside className="menu-container">
             <h2>Virtual Assistants</h2>
 
             <nav className="menu-items">

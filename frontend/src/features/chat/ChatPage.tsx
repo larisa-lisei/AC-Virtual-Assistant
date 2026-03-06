@@ -2,20 +2,44 @@ import './ChatPage.css';
 import PersonPinIcon from '@mui/icons-material/PersonPin';
 import ArrowCircleLeftIcon from '@mui/icons-material/ArrowCircleLeft';
 import ArrowCircleRightIcon from '@mui/icons-material/ArrowCircleRight';
-import  StudentMenu, { type Course } from './components/menu/StudentMenu';
-import ChatComponent from './components/ChatComponent';
+import  StudentMenu from './components/menu/StudentMenu';
+import ProfessorMenu from './components/menu/ProfessorMenu';
+import StudentChatComponent from './components/StudentChatComponent';
 import { useState } from 'react';
+import ProfessorChatComponent from './components/ProfessorChatComponent';
 
 type MessageRole = 'user' | 'assistant';
+type UserRole = 'student' | 'professor' | 'admin';
 
-interface Message {
+export interface Message {
     id: string;
     role: MessageRole;
     text: string;
 }
 
+export interface User {
+    //id: number;
+    //name: string;
+    role: UserRole;
+}
+
+export interface Student extends User {
+    role: 'student';
+    enrolledCoursesIds: number[];
+}
+
+export interface Professor extends User {
+    role: 'professor';
+    courseId: number;
+}
+
+export interface Course {
+    id: number;
+    title: string;
+}
+
 export default function ChatPage() {
-    const studentName = 'student name';
+    const username = ' username';
 
     const courses: Course[] = [
         { id: 1, title: 'Parallel and Distributed Algorithms' },
@@ -28,6 +52,9 @@ export default function ChatPage() {
     const [selectedCourseId, setSelectedCourseId] = useState<number | null>(null);
     const [messages, setMessages] = useState<Message[]>([]);
     const[menuOpen, setMenuOpen] = useState(true);
+
+    //const [user, setUser] = useState<User>({role: 'student'});
+    const [user, setUser] = useState<User>({role: 'professor'});
 
     const selectedCourse = selectedCourseId !== null
         ? courses.find(
@@ -50,18 +77,22 @@ export default function ChatPage() {
         <div className="chat-layout">
             <div className="chat-title">
                 <h2>AC Virtual Assistant</h2>
-                <h2 className="hello-student">Hello, {studentName} <PersonPinIcon sx={{ fontSize: 40 }} className = "profile-icon"/></h2>
+                <h2 className="hello-student">Hello, {username} <PersonPinIcon sx={{ fontSize: 40 }} className = "profile-icon"/></h2>
             </div>
             <div className="chat-container">
                 <div className={`chat-menu ${menuOpen ? 'open' : 'closed'}`}>
                     <div className="chat-menu-panel">
-                        <StudentMenu
-                            courses={courses}
-                            selectedCourseId={selectedCourseId}
-                            onSelectedCourse={handleSelectedCourse}
-                            onToggleMenu={onToggleMenu}
-                            menuOpen={menuOpen}
-                        />
+                        {user.role == 'student' ?
+                            <StudentMenu
+                                courses={courses}
+                                selectedCourseId={selectedCourseId}
+                                onSelectedCourse={handleSelectedCourse}
+                                onToggleMenu={onToggleMenu}
+                                menuOpen={menuOpen}
+                            />
+                        : 
+                            <ProfessorMenu />
+                        }
                     </div>
 
                     <button className = {`menu-button ${menuOpen ? 'open' : 'closed'}`} type = "button" onClick={onToggleMenu}>
@@ -72,7 +103,10 @@ export default function ChatPage() {
                     </button>
                 </div>
                 <div className={`chat-messages ${menuOpen ? 'menu-open' : 'menu-close'}`}>
-                    <ChatComponent selectedCourse={selectedCourse}/>
+                    {user.role == 'student' ?
+                        <StudentChatComponent selectedCourse={selectedCourse}/> :
+                        <ProfessorChatComponent />
+                    }
                 </div>
             </div>
         </div>
