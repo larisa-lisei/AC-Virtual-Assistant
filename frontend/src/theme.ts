@@ -48,5 +48,60 @@ export const theme = createTheme({
                 },
             },
         },
+        MuiTableRow: {
+            styleOverrides: {
+                root: {
+                    '.MuiTableBody-root &' : {
+                        '&:hover': {
+                            background: 'rgb(235, 237, 255)',
+                        },
+                    },
+                },
+            },
+        },
+        MuiTableCell: {
+            styleOverrides: {
+                head: {
+                    color: '#1B2058',
+                    fontWeight: 700,
+                    fontSize: '1.1em',
+                    borderBottom: '2px solid #1B2058'
+                },
+            },
+        },
+        MuiDialog: {
+            styleOverrides: {
+                root: {
+                    textAlign: 'center',
+                },
+                paper: {
+                    borderRadius: 15,
+                    padding: 20,
+                    border: '4px solid #1B2058',
+                }
+            }
+        },
+        MuiDialogTitle: {
+            styleOverrides: {
+                root: {
+                    fontWeight: 700,
+                    color: '#1B2058',
+                },
+            },
+        },
+        MuiDialogActions: {
+            styleOverrides: {
+                root: {
+                    justifyContent: 'center' 
+                },
+            },
+        },
+        MuiDialogContent: {
+            styleOverrides: {
+                root: {
+                    margin: 20
+                }
+            }
+        }
     },
 });

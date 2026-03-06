@@ -27,10 +27,10 @@ export default function ChatComponent({ selectedCourse }: StudentChatComponentPr
             <div className="chat-description">
                 <h2>Ask me anything about this course!</h2>
             </div>
-            <div className="message-input">
-                <div className="message-wrapper">
+            <div className="input-text">
+                <div className="input-wrapper">
                     <input type="text" placeholder="Type here..."/>
-                    <SendIcon className="send-icon"/>
+                    <SendIcon className="input-icon"/>
                 </div>
             </div>
         </div>

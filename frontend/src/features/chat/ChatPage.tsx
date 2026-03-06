@@ -8,6 +8,7 @@ import StudentChatComponent from './components/StudentChatComponent';
 import { useState } from 'react';
 import ProfessorChatComponent from './components/ProfessorChatComponent';
 import AdminMenu from './components/menu/AdminMenu';
+import AdminChatComponent from './components/AdminChatComponent';
 
 type MessageRole = 'user' | 'assistant';
 type UserRole = 'student' | 'professor' | 'admin';
@@ -37,6 +38,12 @@ export interface Professor extends User {
 export interface Course {
     id: number;
     title: string;
+}
+
+export interface AdminMenuOption {
+    degree: string;
+    program: string;
+    specific: string;
 }
 
 export default function ChatPage() {
@@ -71,8 +78,14 @@ export default function ChatPage() {
         }
     }
 
+    const [activeAdminItem, setActiveAdminItem] = useState<AdminMenuOption | null>(null);
+
+    const handleAdminActiveItem = (clickedItem: AdminMenuOption) => {
+        setActiveAdminItem(clickedItem);
+    }
+
     const onToggleMenu = () => {
-        setMenuOpen((v) => !v)
+        setMenuOpen((e) => !e)
     }
 
     const roleMenus = {
@@ -85,9 +98,20 @@ export default function ChatPage() {
                 menuOpen={menuOpen}
             />
         ),
-        professor:  <ProfessorMenu />,
-        admin: <AdminMenu />
-    }
+        professor: <ProfessorMenu />,
+        admin: (
+            <AdminMenu 
+                activeButton={activeAdminItem}
+                onSelectedAdminItem={handleAdminActiveItem}
+            />
+        ),
+    };
+
+    const roleChats = {
+        student: <StudentChatComponent selectedCourse={selectedCourse}/>,
+        professor: <ProfessorChatComponent />,
+        admin: <AdminChatComponent activeItem={activeAdminItem} />
+    };
 
     return (
         <div className="chat-layout">
@@ -109,10 +133,7 @@ export default function ChatPage() {
                     </button>
                 </div>
                 <div className={`chat-messages ${menuOpen ? 'menu-open' : 'menu-close'}`}>
-                    {user.role == 'student' ?
-                        <StudentChatComponent selectedCourse={selectedCourse}/> :
-                        <ProfessorChatComponent />
-                    }
+                    {roleChats[user.role]}
                 </div>
             </div>
         </div>

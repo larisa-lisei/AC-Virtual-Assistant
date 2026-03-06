@@ -2,8 +2,17 @@ import { useState } from 'react';
 import './MenuComponent.css'
 import { Collapse, List, ListItemButton, ListItemText } from '@mui/material';
 import { ExpandLess, ExpandMore } from '@mui/icons-material';
+import type { AdminMenuOption } from '../../ChatPage';
 
-export default function AdminMenu() {
+interface AdminMenuProps {
+    activeButton: AdminMenuOption | null;
+    onSelectedAdminItem: (activeItem: AdminMenuOption) => void;
+}
+
+export default function AdminMenu({
+    activeButton,
+    onSelectedAdminItem
+} : AdminMenuProps) {
     const [open, setOpen] = useState({
         students: false,
         bachelor: false,
@@ -14,8 +23,6 @@ export default function AdminMenu() {
         'is-master': false,
         //professors: false,
     });
-
-    const [activeButton, setActiveButton] = useState<string | null>(null);
 
     const handleClick = (section: keyof typeof open) => {
         const newState = { ...open };
@@ -65,32 +72,68 @@ export default function AdminMenu() {
                                         <ListItemButton 
                                             className='leaf-button'
                                             sx={{pl: 12}}
-                                            selected={activeButton === 'cti-bachelor-year1'}
-                                            onClick={() => setActiveButton('cti-bachelor-year1')}
+                                            selected={
+                                                activeButton?.degree === "Bachelor's degree" &&
+                                                activeButton?.program === "CTI" &&
+                                                activeButton?.specific === "First Year"
+                                            }
+                                            onClick={() => onSelectedAdminItem({
+                                                degree: "Bachelor's degree",
+                                                program: "CTI",
+                                                specific: "First Year"
+                                            })
+                                            }
                                         >
                                             <ListItemText primary="First Year"></ListItemText>
                                         </ListItemButton>
                                         <ListItemButton 
                                             className='leaf-button'
                                             sx={{pl: 12}}
-                                            selected={activeButton === 'cti-bachelor-year2'}
-                                            onClick={() => setActiveButton('cti-bachelor-year2')}
+                                            selected={
+                                                activeButton?.degree === "Bachelor's degree" &&
+                                                activeButton?.program === "CTI" &&
+                                                activeButton?.specific === "Second Year"
+                                            }
+                                            onClick={() => onSelectedAdminItem({
+                                                degree: "Bachelor's degree",
+                                                program: "CTI",
+                                                specific: "Second Year"
+                                            })
+                                            }
                                         >
                                             <ListItemText primary="Second Year"></ListItemText>
                                         </ListItemButton>
                                         <ListItemButton 
                                             className='leaf-button'
                                             sx={{pl: 12}}
-                                            selected={activeButton === 'cti-bachelor-year3'}
-                                            onClick={() => setActiveButton('cti-bachelor-year3')}
-                                        >
+                                            selected={
+                                                activeButton?.degree === "Bachelor's degree" &&
+                                                activeButton?.program === "CTI" &&
+                                                activeButton?.specific === "Third Year"
+                                            }
+                                            onClick={() => onSelectedAdminItem({
+                                                degree: "Bachelor's degree",
+                                                program: "CTI",
+                                                specific: "Third Year"
+                                            })
+                                            }
+                                        >   
                                             <ListItemText primary="Third Year"></ListItemText>
                                         </ListItemButton>
                                         <ListItemButton 
                                             className='leaf-button'
                                             sx={{pl: 12}}
-                                            selected={activeButton === 'cti-bachelor-year4'}
-                                            onClick={() => setActiveButton('cti-bachelor-year4')}
+                                            selected={
+                                                activeButton?.degree === "Bachelor's degree" &&
+                                                activeButton?.program === "CTI" &&
+                                                activeButton?.specific === "Fourth Year"
+                                            }
+                                            onClick={() => onSelectedAdminItem({
+                                                degree: "Bachelor's degree",
+                                                program: "CTI",
+                                                specific: "Fourth Year"
+                                            })
+                                            }
                                         >
                                             <ListItemText primary="Fourth Year"></ListItemText>
                                         </ListItemButton>
@@ -111,32 +154,68 @@ export default function AdminMenu() {
                                         <ListItemButton 
                                             className='leaf-button'
                                             sx={{pl: 12}}
-                                            selected={activeButton === 'is-bachelor-year1'}
-                                            onClick={() => setActiveButton('is-bachelor-year1')}
+                                            selected={
+                                                activeButton?.degree === "Bachelor's degree" &&
+                                                activeButton?.program === "IS" &&
+                                                activeButton?.specific === "First Year"
+                                            }
+                                            onClick={() => onSelectedAdminItem({
+                                                degree: "Bachelor's degree",
+                                                program: "IS",
+                                                specific: "First Year"
+                                            })
+                                            }
                                         >
                                             <ListItemText primary="First Year"></ListItemText>
                                         </ListItemButton>
                                         <ListItemButton
                                             className='leaf-button'
                                             sx={{pl: 12}}
-                                            selected={activeButton === 'is-bachelor-year2'}
-                                            onClick={() => setActiveButton('is-bachelor-year2')}
+                                            selected={
+                                                activeButton?.degree === "Bachelor's degree" &&
+                                                activeButton?.program === "IS" &&
+                                                activeButton?.specific === "Second Year"
+                                            }
+                                            onClick={() => onSelectedAdminItem({
+                                                degree: "Bachelor's degree",
+                                                program: "IS",
+                                                specific: "Second Year"
+                                            })
+                                            }
                                          >
                                             <ListItemText primary="Second Year"></ListItemText>
                                         </ListItemButton>
                                         <ListItemButton 
                                             className='leaf-button'
                                             sx={{pl: 12}}
-                                            selected={activeButton === 'is-bachelor-year3'}
-                                            onClick={() => setActiveButton('is-bachelor-year3')}
+                                            selected={
+                                                activeButton?.degree === "Bachelor's degree" &&
+                                                activeButton?.program === "IS" &&
+                                                activeButton?.specific === "Third Year"
+                                            }
+                                            onClick={() => onSelectedAdminItem({
+                                                degree: "Bachelor's degree",
+                                                program: "IS",
+                                                specific: "Third Year"
+                                            })
+                                            }
                                         >
                                             <ListItemText primary="Third Year"></ListItemText>
                                         </ListItemButton>
                                         <ListItemButton 
                                             className='leaf-button'
                                             sx={{pl: 12}}
-                                            selected={activeButton === 'is-bachelor-year4'}
-                                            onClick={() => setActiveButton('is-bachelor-year4')}
+                                            selected={
+                                                activeButton?.degree === "Bachelor's degree" &&
+                                                activeButton?.program === "IS" &&
+                                                activeButton?.specific === "Fourth Year"
+                                            }
+                                            onClick={() => onSelectedAdminItem({
+                                                degree: "Bachelor's degree",
+                                                program: "IS",
+                                                specific: "Fourth Year"
+                                            })
+                                            }
                                         >
                                             <ListItemText primary="Fourth Year"></ListItemText>
                                         </ListItemButton>
@@ -171,32 +250,68 @@ export default function AdminMenu() {
                                         <ListItemButton
                                             className='leaf-button'
                                             sx={{pl: 12}}
-                                            selected={activeButton === 'cti-ai'}
-                                            onClick={() => setActiveButton('cti-ai')}
+                                            selected={
+                                                activeButton?.degree === "Master's degree" &&
+                                                activeButton?.program === "CTI" &&
+                                                activeButton?.specific === "Artificial Intelligence"
+                                            }
+                                            onClick={() => onSelectedAdminItem({
+                                                degree: "Master's degree",
+                                                program: "CTI",
+                                                specific: "Artificial Intelligence"
+                                            })
+                                            }
                                         >
                                             <ListItemText primary="Artificial Intelligence"></ListItemText>
                                         </ListItemButton>
                                         <ListItemButton 
                                             className='leaf-button'
                                             sx={{pl: 12}}
-                                            selected={activeButton === 'cti-ec'}
-                                            onClick={() => setActiveButton('cti-ec')}
+                                            selected={
+                                                activeButton?.degree === "Master's degree" &&
+                                                activeButton?.program === "CTI" &&
+                                                activeButton?.specific === "Embedded Computers"
+                                            }
+                                            onClick={() => onSelectedAdminItem({
+                                                degree: "Master's degree",
+                                                program: "CTI",
+                                                specific: "Embedded Computers"
+                                            })
+                                            }
                                         >
                                             <ListItemText primary="Embedded Computers"></ListItemText>
                                         </ListItemButton>
                                         <ListItemButton 
                                             className='leaf-button'
                                             sx={{pl: 12}}
-                                            selected={activeButton === 'cti-dswt'}
-                                            onClick={() => setActiveButton('cti-dswt')}
+                                            selected={
+                                                activeButton?.degree === "Master's degree" &&
+                                                activeButton?.program === "CTI" &&
+                                                activeButton?.specific === "Distributed Systems and Web Technologies"
+                                            }
+                                            onClick={() => onSelectedAdminItem({
+                                                degree: "Master's degree",
+                                                program: "CTI",
+                                                specific: "Distributed Systems and Web Technologies"
+                                            })
+                                            }
                                         >
                                             <ListItemText primary="Distributed Systems and Web Technologies"></ListItemText>
                                         </ListItemButton>
                                         <ListItemButton 
                                             className='leaf-button'
                                             sx={{pl: 12}}
-                                            selected={activeButton === 'cti-cs'}
-                                            onClick={() => setActiveButton('cti-cs')}
+                                            selected={
+                                                    activeButton?.degree === "Master's degree" &&
+                                                    activeButton?.program === "CTI" &&
+                                                    activeButton?.specific === "Cyberspace security"
+                                                }
+                                                onClick={() => onSelectedAdminItem({
+                                                    degree: "Master's degree",
+                                                    program: "CTI",
+                                                    specific: "Cyberspace security"
+                                                })
+                                            }
                                         >
                                             <ListItemText primary="Cyberspace security"></ListItemText>
                                         </ListItemButton>
@@ -217,16 +332,34 @@ export default function AdminMenu() {
                                         <ListItemButton
                                             className='leaf-button'
                                             sx={{pl: 12}}
-                                            selected={activeButton === 'is-mlrc'}
-                                            onClick={() => setActiveButton('is-mlrc')}
+                                            selected={
+                                                activeButton?.degree === "Master's degree" &&
+                                                activeButton?.program === "IS" &&
+                                                activeButton?.specific === "Machine Learning, Robotics and Control"
+                                            }
+                                            onClick={() => onSelectedAdminItem({
+                                                degree: "Master's degree",
+                                                program: "IS",
+                                                specific: "Machine Learning, Robotics and Control"
+                                            })
+                                        }
                                          >
                                             <ListItemText primary="Machine Learning, Robotics and Control"></ListItemText>
                                         </ListItemButton>
                                         <ListItemButton 
                                             className='leaf-button'
                                             sx={{pl: 12}}
-                                            selected={activeButton === 'is-ecs'}
-                                            onClick={() => setActiveButton('is-ecs')}
+                                            selected={
+                                                activeButton?.degree === "Master's degree" &&
+                                                activeButton?.program === "IS" &&
+                                                activeButton?.specific === "Embedded Control Systems"
+                                            }
+                                            onClick={() => onSelectedAdminItem({
+                                                degree: "Master's degree",
+                                                program: "IS",
+                                                specific: "Embedded Control Systems"
+                                            })
+                                        }
                                         >
                                             <ListItemText primary="Embedded Control Systems"></ListItemText>
                                         </ListItemButton>
@@ -242,8 +375,18 @@ export default function AdminMenu() {
                 <div className="students-expand-button">
                     <ListItemButton
                         className='leaf-button'
-                        selected={activeButton === 'professors'}
-                        onClick={() => setActiveButton('professors')}
+                        //Temporary solution
+                        selected={
+                            activeButton?.degree === "Professors" &&
+                            activeButton?.program === "Professors" &&
+                            activeButton?.specific === "Professors"
+                            }
+                            onClick={() => onSelectedAdminItem({
+                                degree: "Professors",
+                                program: "Professors",
+                                specific: "Professors"
+                            })
+                        }
                     >
                         <ListItemText primary="Professors"></ListItemText>
                     </ListItemButton>

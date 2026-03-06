@@ -53,19 +53,19 @@
     font-weight: bold;
 }
 
-.message-input {
+.input-text {
     margin: 20px;
     text-align: center;
 }
 
-.message-wrapper {
+.input-wrapper {
     position: relative;
     display: flex;
     flex-direction: row;
     align-items: center;
 }
 
-.message-wrapper input {
+.input-wrapper input {
     width: 100%;
     padding: 40px 50px 40px 16px;
     border: 2px solid var(--primary-color);
@@ -73,17 +73,23 @@
     box-sizing: border-box;
 }
 
-.message-wrapper .send-icon {
+.input-wrapper.admin input {
+    padding-top: 20px;
+    padding-bottom: 20px;
+    border-radius: 25px;
+}
+
+.input-wrapper .input-icon {
     position: absolute;
     right: 15px;
     cursor: pointer;
 }
 
-.send-icon {
+.input-icon {
     color: var(--primary-color);
 }
 
-.send-icon:hover {
+.input-icon:hover {
     filter: drop-shadow(0px 0px 6px rgba(0,0,0,0.3));
 }
 
@@ -94,4 +100,44 @@
     padding: 0;
     margin: 0;
     cursor: pointer;
+}
+
+.admin-title {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.admin-title h2 {
+    color: var(--primary-color);
+}
+
+.admin-title h3 {
+    color: var(--secondary-color);
+}
+
+.admin-table-wrapper {
+    margin: 20px;
+}
+
+.admin-table {
+    border: 2px solid var(--primary-color);
+    border-radius: 10px;
+    width: fit-content;
+}
+
+.admin-row-buttons {
+    display: flex;
+    gap: 5px;
+    justify-content: end;
+}
+
+.admin-row-buttons button:hover {
+    border: 2px solid var(--primary-color);
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.admin-add-account {
+    text-align: center;
+    margin: 20px 0pc 20px 0px;
 }

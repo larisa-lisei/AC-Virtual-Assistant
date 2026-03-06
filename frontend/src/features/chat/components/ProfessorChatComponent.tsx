@@ -35,15 +35,15 @@ export default function ProfessorChatComponent() {
                         </>
                     )}
                 </div>
-                <div className="message-input">
-                <div className="message-wrapper">
-                    <input type="text" placeholder={
-                                        convMode === 'professor' ? 
-                                        "Get feedback for your course..."
-                                        : "Type here..."}/>
-                    <SendIcon className="send-icon"/>
+                <div className="input-text">
+                    <div className="input-wrapper">
+                        <input type="text" placeholder={
+                                            convMode === 'professor' ? 
+                                            "Get feedback for your course..."
+                                            : "Type here..."}/>
+                        <SendIcon className="input-icon"/>
+                    </div>
                 </div>
-            </div>
             </div>
         )
 }
