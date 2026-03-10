@@ -141,3 +141,8 @@
     text-align: center;
     margin: 20px 0pc 20px 0px;
 }
+
+.admin-account-email {
+    color: black;
+    text-wrap: nowrap;
+}

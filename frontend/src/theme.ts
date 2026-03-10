@@ -76,8 +76,9 @@ export const theme = createTheme({
                 },
                 paper: {
                     borderRadius: 15,
-                    padding: 20,
+                    padding: 70,
                     border: '4px solid #1B2058',
+                    gap: 25,
                 }
             }
         },
@@ -85,22 +86,25 @@ export const theme = createTheme({
             styleOverrides: {
                 root: {
                     fontWeight: 700,
+                    fontSize: '1.5em',
                     color: '#1B2058',
+                    padding: 0
                 },
             },
         },
         MuiDialogActions: {
             styleOverrides: {
                 root: {
-                    justifyContent: 'center' 
+                    justifyContent: 'center',
+                    gap: 20,
                 },
             },
         },
         MuiDialogContent: {
             styleOverrides: {
                 root: {
-                    margin: 20
-                }
+                    paddingTop: '10px !important',
+                },
             }
         }
     },

@@ -3,8 +3,8 @@ import type { ReactNode } from "react";
 
 interface AdminDialogProps {
     open: boolean;
-    title: string;
-    children: ReactNode;
+    title: ReactNode;
+    children?: ReactNode;
     onClose: () => void;
     onConfirm?: () => void;
     confirmText?: string;
@@ -22,9 +22,11 @@ export default function AdminDialog({
         <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
             <DialogTitle>{title}</DialogTitle>
 
-            <DialogContent>
-                {children}
-            </DialogContent>
+            {children && (
+                <DialogContent>
+                    {children}
+                </DialogContent>
+            )}
 
             <DialogActions>
                 <Button onClick={onConfirm} variant="contained">{confirmText}</Button>

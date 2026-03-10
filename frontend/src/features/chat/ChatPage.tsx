@@ -2,6 +2,7 @@ import './ChatPage.css';
 import PersonPinIcon from '@mui/icons-material/PersonPin';
 import ArrowCircleLeftIcon from '@mui/icons-material/ArrowCircleLeft';
 import ArrowCircleRightIcon from '@mui/icons-material/ArrowCircleRight';
+import LogoutIcon from '@mui/icons-material/Logout';
 import  StudentMenu from './components/menu/StudentMenu';
 import ProfessorMenu from './components/menu/ProfessorMenu';
 import StudentChatComponent from './components/StudentChatComponent';
@@ -9,6 +10,7 @@ import { useState } from 'react';
 import ProfessorChatComponent from './components/ProfessorChatComponent';
 import AdminMenu from './components/menu/AdminMenu';
 import AdminChatComponent from './components/AdminChatComponent';
+import { Menu, MenuItem } from '@mui/material';
 
 type MessageRole = 'user' | 'assistant';
 type UserRole = 'student' | 'professor' | 'admin';
@@ -48,6 +50,14 @@ export interface AdminMenuOption {
 
 export default function ChatPage() {
     const username = ' username';
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+    const logoutMenuOpen = Boolean(anchorEl);
+    const handleLogoutMenuClick = (event: React.MouseEvent<HTMLElement>) => {
+        setAnchorEl(event.currentTarget);
+    }
+    const handleLogoutMenuClose = () => {
+        setAnchorEl(null);
+    }
 
     const courses: Course[] = [
         { id: 1, title: 'Parallel and Distributed Algorithms' },
@@ -117,7 +127,44 @@ export default function ChatPage() {
         <div className="chat-layout">
             <div className="chat-title">
                 <h2>AC Virtual Assistant</h2>
-                <h2 className="hello-student">Hello, {username} <PersonPinIcon sx={{ fontSize: 40 }} className = "profile-icon"/></h2>
+                <div className="hello-username">
+                    <h2>Hello, {username} </h2>
+
+                    <button
+                        type="button"
+                        onClick={handleLogoutMenuClick}>
+                        <PersonPinIcon sx={{ fontSize: 40 }} className = "profile-icon"/>
+                    </button>
+
+                    <Menu
+                        anchorEl={anchorEl}
+                        open={logoutMenuOpen}
+                        onClose={handleLogoutMenuClose}
+                        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+                        transformOrigin={{ vertical: "top", horizontal: "center" }}
+                        slotProps={{
+                            paper: {
+                                sx: {
+                                    border: '2px solid #1B2058',
+                                    borderRadius: 5,
+                                    marginTop: -0.4
+                                }
+                            }
+                        }}
+                    >
+                        <MenuItem 
+                            onClick={handleLogoutMenuClose}
+                            sx={{
+                                '&:hover': {
+                                    backgroundColor: 'transparent'
+                                }
+                            }}
+                        >
+                            <div className='logout-item'>Logout <LogoutIcon></LogoutIcon></div>
+                        </MenuItem>
+                    </Menu>
+
+                </div>
             </div>
             <div className="chat-container">
                 <div className={`chat-menu ${menuOpen ? 'open' : 'closed'}`}>

@@ -1,4 +1,4 @@
-import { Table, TableContainer, TableHead, TableRow, TableCell, TableBody, Button, TextField } from '@mui/material';
+import { Table, TableContainer, TableHead, TableRow, TableCell, TableBody, Button, TextField, Stack } from '@mui/material';
 import type { AdminMenuOption } from '../ChatPage';
 import './ChatComponent.css'
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
@@ -31,6 +31,8 @@ const rows = [
 export default function AdminChatComponent( {activeItem} : AdminChatComponentProps ) {
 
     const [openDialog, setOpenDialog] = useState<DialogType>(null);
+    //one row with no, groupNumber and email info
+    const [currentRow, setCurrentRow] = useState<(typeof rows)[number] | null>(null);
 
     //welcome message
     if(!activeItem) {
@@ -48,7 +50,9 @@ export default function AdminChatComponent( {activeItem} : AdminChatComponentPro
         <div className="chat-component-container">
             <div className="admin-title">
                 <h2>{activeItem.degree}</h2>
-                <h3>{activeItem.program} - {activeItem.specific}</h3>
+                {activeItem.degree !== 'Professors' &&
+                    <h3>{activeItem.program} - {activeItem.specific}</h3>
+                }
             </div>
             <div className="input-text">
                 <div className="input-wrapper admin">
@@ -78,8 +82,23 @@ export default function AdminChatComponent( {activeItem} : AdminChatComponentPro
                                     <TableCell align="center">{row.email}</TableCell>
                                     <TableCell align="right">
                                         <div className="admin-row-buttons">
-                                            <button><DeleteOutlineIcon fontSize='small'/></button>
-                                            <button><EditOutlinedIcon fontSize='small'/></button>
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    setCurrentRow(row);
+                                                    setOpenDialog('deleteAccount');
+                                                }}>
+                                                    <DeleteOutlineIcon fontSize='small'/>
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    setCurrentRow(row);
+                                                    setOpenDialog('editAccount');
+                                                }}
+                                            >
+                                                <EditOutlinedIcon fontSize='small'/>
+                                            </button>
                                         </div>
                                     </TableCell>
                                 </TableRow>
@@ -95,34 +114,93 @@ export default function AdminChatComponent( {activeItem} : AdminChatComponentPro
                     onClick={() => setOpenDialog('addAccount')}>
                         Add Account
                 </Button>
-
-                <AdminDialog
-                    open={openDialog === "addAccount"}
-                    title="Add New Account"
-                    onClose={() => setOpenDialog(null)}
-                    onConfirm={() => setOpenDialog(null)}
-                    confirmText='Add Account'
-                >
-                    <>
-                        <TextField
-                            label="Email"
-                            type="email"
-                            required
-                            //value={email}
-                            //onChange={(e) => setEmail(e.target.value)}
-                        />
-                        <br/>
-                        <br/>
-                        <TextField
-                            label="Group"
-                            type="text"
-                            required
-                            //value={group}
-                            //onChange={(e) => setPassword(e.target.value)}
-                        />
-                    </>
-                </AdminDialog>
             </div>
+
+            {/* Add account dialog */}
+            <AdminDialog
+                open={openDialog === 'addAccount'}
+                title="Add New Account"
+                onClose={() => setOpenDialog(null)}
+                onConfirm={() => setOpenDialog(null)}
+                confirmText='Add Account'
+            >
+                <Stack spacing={5}>
+                    <TextField
+                        fullWidth
+                        label="Email"
+                        type="email"
+                        required
+                        //value={email}
+                        //onChange={(e) => setEmail(e.target.value)}
+                    />
+                    <TextField
+                        fullWidth
+                        label="Group"
+                        type="text"
+                        required
+                        //value={group}
+                        //onChange={(e) => setPassword(e.target.value)}
+                    />
+                </Stack>
+            </AdminDialog>
+
+            {/* Delete account dialog */}
+            <AdminDialog
+                open={openDialog === 'deleteAccount'}
+                title={
+                    <>
+                        Are you sure you want to delete{" "}
+                        <span className="admin-account-email">
+                            {currentRow?.email ?? ""}
+                        </span>{" "} account?
+                    </>
+                }
+                onClose={() => {
+                    setOpenDialog(null);
+                    setCurrentRow(null);
+                }}
+                onConfirm={() => {
+                    setOpenDialog(null);
+                    setCurrentRow(null);
+                }}
+                confirmText='Delete account'
+            >
+            </AdminDialog>
+
+            {/* Edit account dialog */}
+            <AdminDialog
+                open={openDialog === 'editAccount' }
+                title='Edit account'
+                onClose={() => {
+                    setOpenDialog(null);
+                    setCurrentRow(null);
+                }}
+                onConfirm={() => {
+                    setOpenDialog(null);
+                    setCurrentRow(null);
+                }}
+                confirmText='Save'
+            >
+                <Stack spacing={5}>
+                    <TextField
+                        fullWidth
+                        label="Email"
+                        type="email"
+                        required
+                        value={currentRow?.email ?? ""}
+                        //onChange={(e) => setEmail(e.target.value)}
+                    />
+                    <TextField
+                        fullWidth
+                        label="Group"
+                        type="text"
+                        required
+                        value={currentRow?.groupNumber ?? ""}
+                        //onChange={(e) => setPassword(e.target.value)}
+                    />
+                </Stack>
+
+            </AdminDialog>
         </div>
     )
 }
