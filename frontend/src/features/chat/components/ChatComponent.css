@@ -21,7 +21,7 @@
 .course-title.professor {
     display: flex;
     flex-direction: row;
-    align-items: baseline;
+    align-items: center;
     justify-content: space-between;
 }
 
@@ -29,6 +29,7 @@
     margin-right: 20px;
     color: var(--primary-color);
     font-weight: bold;
+    text-wrap: nowrap;
 }
 
 .chat-description {

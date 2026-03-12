@@ -9,388 +9,374 @@ interface AdminMenuProps {
     onSelectedAdminItem: (activeItem: AdminMenuOption) => void;
 }
 
+type MenuNode = {
+    id: string;
+    label: React.ReactNode;
+    value?: AdminMenuOption;
+    children?: MenuNode[];
+};
+
+const menuData: MenuNode[] = [
+    {
+        id: 'students',
+        label: 'Students',
+        children: [
+            {
+                id: 'bachelor',
+                label: "Bachelor's degree",
+                children: [
+                    {
+                        id: "csit-bachelor",
+                        label: "CSIT",
+                        children: [
+                            {
+                                id: 'csit-first',
+                                label: "First Year",
+                                value: {
+                                    degree: "Bachelor's degree",
+                                    program: "CSIT",
+                                    specific: "First Year"
+                                },
+                            },
+                            {
+                                id: 'csit-second',
+                                label: "Second Year",
+                                value: {
+                                    degree: "Bachelor's degree",
+                                    program: "CSIT",
+                                    specific: "Second Year"
+                                },
+                            },
+                            {
+                                id: 'csit-third',
+                                label: "Third Year",
+                                value: {
+                                    degree: "Bachelor's degree",
+                                    program: "CSIT",
+                                    specific: "Third Year"
+                                },
+                            },
+                            {
+                                id: 'csit-fourth',
+                                label: "Fourth Year",
+                                children: [
+                                    {
+                                        id: 'cs',
+                                        label: "Computer Science",
+                                        value: {
+                                            degree: "Bachelor's degree",
+                                            program: "CSIT - Fourth year",
+                                            specific: "Computer Science"
+                                        },
+                                    },
+                                    {
+                                        id: 'it',
+                                        label: "Information Technology",
+                                        value: {
+                                            degree: "Bachelor's degree",
+                                            program: "CSIT - Forth Year",
+                                            specific: "Information Technology"
+                                        }
+                                    },
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        id: "se-bachelor",
+                        label: "SE",
+                        children: [
+                            {
+                                id: 'se-first',
+                                label: "First Year",
+                                value: {
+                                    degree: "Bachelor's degree",
+                                    program: "SE",
+                                    specific: "First Year"
+                                },
+                            },
+                            {
+                                id: 'se-second',
+                                label: "Second Year",
+                                value: {
+                                    degree: "Bachelor's degree",
+                                    program: "SE",
+                                    specific: "Second Year"
+                                },
+                            },
+                            {
+                                id: 'se-third',
+                                label: "Third Year",
+                                value: {
+                                    degree: "Bachelor's degree",
+                                    program: "SE",
+                                    specific: "Third Year"
+                                },
+                            },
+                            {
+                                id: 'se-fourth',
+                                label: "Fourth Year",
+                                value: {
+                                    degree: "Bachelor's degree",
+                                    program: "SE",
+                                    specific: "Fourth Year"
+                                }
+                            }
+                        ]
+                    },
+                ]
+            },
+            {
+                id: 'master',
+                label: "Master's degree",
+                children: [
+                    {
+                        id: 'csit-master',
+                        label: "CSIT",
+                        children: [
+                            {
+                                id: 'csit-ai',
+                                label: "Artificial Intelligence",
+                                children: [
+                                    {
+                                        id:'ai-first',
+                                        label: "First Year",
+                                        value: {
+                                            degree: "Master's degree",
+                                            program: "CSIT - Artificial Intelligence",
+                                            specific: "First Year"
+                                        }
+                                    },
+                                    {
+                                        id:'ai-second',
+                                        label: "Second Year",
+                                        value: {
+                                            degree: "Master's degree",
+                                            program: "CSIT - Artificial Intelligence",
+                                            specific: "Second Year"
+                                        }
+                                    },
+                                ]
+                            },
+                            {
+                                id: 'csit-ec',
+                                label: "Embedded Computers",
+                                children: [
+                                    {
+                                        id:'ec-first',
+                                        label: "First Year",
+                                        value: {
+                                            degree: "Master's degree",
+                                            program: "CSIT - Embedded Computers",
+                                            specific: "First Year"
+                                        }
+                                    },
+                                    {
+                                        id:'ec-second',
+                                        label: "Second Year",
+                                        value: {
+                                            degree: "Master's degree",
+                                            program: "CSIT - Embedded Computers",
+                                            specific: "Second Year"
+                                        }
+                                    },
+                                ]
+                            },
+                            {
+                                id: 'csit-dswt',
+                                label: 
+                                <>
+                                    Distributed Systems and <br /> Web Technologies
+                                </>,
+                                children: [
+                                    {
+                                        id:'dswt-first',
+                                        label: "First Year",
+                                        value: {
+                                            degree: "Master's degree",
+                                            program: "CSIT - Distributed Systems and Web Technologies",
+                                            specific: "First Year"
+                                        }
+                                    },
+                                    {
+                                        id:'dswt-second',
+                                        label: "Second Year",
+                                        value: {
+                                            degree: "Master's degree",
+                                            program: "CSIT - Distributed Systems and Web Technologies",
+                                            specific: "Second Year"
+                                        }
+                                    },
+                                ]
+                            },
+                            {
+                                id: 'csit-cs',
+                                label: "Cyberspace Security",
+                                children: [
+                                    {
+                                        id:'cs-first',
+                                        label: "First Year",
+                                        value: {
+                                            degree: "Master's degree",
+                                            program: "CSIT - Cyberspace Security",
+                                            specific: "First Year"
+                                        }
+                                    },
+                                    {
+                                        id:'cs-second',
+                                        label: "Second Year",
+                                        value: {
+                                            degree: "Master's degree",
+                                            program: "CSIT - Cyberspace Security",
+                                            specific: "Second Year"
+                                        }
+                                    },
+                                ]
+                            },
+                        ]
+                    },
+                    {
+                        id: "se-master",
+                        label: "SE",
+                        children: [
+                            {
+                                id: 'se-mlrc',
+                                label: 
+                                <>
+                                    Machine Learning, Robotics <br /> and Control
+                                </>,
+                                children: [
+                                     {
+                                        id:'mlrc-first',
+                                        label: "First Year",
+                                        value: {
+                                            degree: "Master's degree",
+                                            program: "SE - Machine Learning, Robotics and Control",
+                                            specific: "First Year"
+                                        }
+                                    },
+                                    {
+                                        id:'mlrc-second',
+                                        label: "Second Year",
+                                        value: {
+                                            degree: "Master's degree",
+                                            program: "SE - Machine Learning, Robotics and Control",
+                                            specific: "Second Year"
+                                        }
+                                    },
+                                ]
+                            },
+                            {
+                                id: 'se-ecs',
+                                label: "Embedded Control Systems",
+                                children: [
+                                     {
+                                        id:'ecs-first',
+                                        label: "First Year",
+                                        value: {
+                                            degree: "Master's degree",
+                                            program: "SE - Embedded Control Systems",
+                                            specific: "First Year"
+                                        }
+                                    },
+                                    {
+                                        id:'ecs-second',
+                                        label: "Second Year",
+                                        value: {
+                                            degree: "Master's degree",
+                                            program: "SE - Embedded Control Systems",
+                                            specific: "Second Year"
+                                        }
+                                    },
+                                ]
+                            },
+                        ]
+                    },
+                ]
+            },
+        ]
+    },
+    {
+        id: 'professors',
+        label: "Professors",
+        value: {
+            degree: "Professors",
+            program: "Professors",
+            specific: "Professors"
+        }
+    }
+];
+
+function isSelected(
+    activeButton: AdminMenuOption | null,
+    value?: AdminMenuOption
+) {
+    if(!activeButton || !value) return false;
+
+    return (
+        activeButton.degree === value.degree &&
+        activeButton.program === value.program &&
+        activeButton.specific === value.specific
+    );
+}
+
 export default function AdminMenu({
     activeButton,
     onSelectedAdminItem
 } : AdminMenuProps) {
-    const [open, setOpen] = useState({
-        students: false,
-        bachelor: false,
-        'cti-bachelor': false,
-        'is-bachelor': false,
-        master: false,
-        'cti-master': false,
-        'is-master': false,
-        //professors: false,
-    });
+    const [open, setOpen] = useState<Record<string, boolean>>({});
 
-    const handleClick = (section: keyof typeof open) => {
-        const newState = { ...open };
-        newState[section] = !newState[section];
-        setOpen(newState);
+    const handleClick = (id: string) => {
+        setOpen(prev => ({
+            ...prev,
+            [id]: !prev[id]
+        }));
+    };
+
+    const renderNode = (node: MenuNode, level = 0) => {
+        const hasChildren = node.children !== undefined && node.children?.length > 0;
+        const expanded = open[node.id] == true;
+        const selected = isSelected(activeButton, node.value);
+
+        return (
+            <div key={node.id}>
+                <ListItemButton
+                    className={`${!hasChildren ? 'leaf-button' : ''} ${expanded ? 'expanded' : ''}`}
+                    sx={{ 
+                        pl: 2 + level * 2,
+                        backgroundColor: expanded ? 'rgba(0, 0, 0, 0.08)' : 'inherit'
+                    }}
+                    selected={selected}
+                    onClick={() => {
+                        if (hasChildren) {
+                            handleClick(node.id)
+                        } else if (node.value) {
+                            onSelectedAdminItem(node.value)
+                        }
+                    }}
+                >
+                    <ListItemText primary={node.label} />
+                    {hasChildren ? (expanded ? <ExpandLess /> : <ExpandMore />) : null}
+                </ListItemButton>
+
+                {hasChildren && (
+                    <Collapse in={expanded} timeout="auto" unmountOnExit>
+                        <List disablePadding>
+                            {node.children?.map(child => renderNode(child, level + 1))}
+                        </List>
+                    </Collapse>
+                )}
+            </div>
+        );
     };
 
     return (
         <aside className="menu-container">
             <h2>Accounts</h2>
-
-            <nav className="admin-menu-items">
-                <div className="students-expand-button">
-                    <ListItemButton
-                        selected={open.students}
-                        onClick={() => handleClick('students')}
-                    >
-                        <ListItemText primary="Students"></ListItemText>
-                        {open.students ? <ExpandLess /> : <ExpandMore />}
-                    </ListItemButton>
-                </div>
-
-                <Collapse in={open.students} timeout="auto" unmountOnExit>
-                    <List component="div" disablePadding >
-                        <ListItemButton 
-                            sx={{ pl: 4 }}
-                            selected={open.bachelor}
-                            onClick={() => handleClick('bachelor')}
-                        >
-                            <ListItemText primary="Bachelor's degree"></ListItemText>
-                            {open.bachelor ? <ExpandLess /> : <ExpandMore />}
-                        </ListItemButton>
-
-                        <Collapse in={open.bachelor} timeout="auto" unmountOnExit>
-                            <List component="div" disablePadding>
-                                <ListItemButton
-                                    sx={{ pl: 8 }}
-                                    selected={open['cti-bachelor']}
-                                    onClick={() => handleClick('cti-bachelor')}
-                                >
-                                    <ListItemText primary="CTI"></ListItemText>
-                                    {open['cti-bachelor'] ? <ExpandLess /> : <ExpandMore />}
-                                </ListItemButton>
-
-                                <Collapse in={open['cti-bachelor']} timeout="auto" unmountOnExit>
-                                    <List component="div" disablePadding>
-                                        <ListItemButton 
-                                            className='leaf-button'
-                                            sx={{pl: 12}}
-                                            selected={
-                                                activeButton?.degree === "Bachelor's degree" &&
-                                                activeButton?.program === "CTI" &&
-                                                activeButton?.specific === "First Year"
-                                            }
-                                            onClick={() => onSelectedAdminItem({
-                                                degree: "Bachelor's degree",
-                                                program: "CTI",
-                                                specific: "First Year"
-                                            })
-                                            }
-                                        >
-                                            <ListItemText primary="First Year"></ListItemText>
-                                        </ListItemButton>
-                                        <ListItemButton 
-                                            className='leaf-button'
-                                            sx={{pl: 12}}
-                                            selected={
-                                                activeButton?.degree === "Bachelor's degree" &&
-                                                activeButton?.program === "CTI" &&
-                                                activeButton?.specific === "Second Year"
-                                            }
-                                            onClick={() => onSelectedAdminItem({
-                                                degree: "Bachelor's degree",
-                                                program: "CTI",
-                                                specific: "Second Year"
-                                            })
-                                            }
-                                        >
-                                            <ListItemText primary="Second Year"></ListItemText>
-                                        </ListItemButton>
-                                        <ListItemButton 
-                                            className='leaf-button'
-                                            sx={{pl: 12}}
-                                            selected={
-                                                activeButton?.degree === "Bachelor's degree" &&
-                                                activeButton?.program === "CTI" &&
-                                                activeButton?.specific === "Third Year"
-                                            }
-                                            onClick={() => onSelectedAdminItem({
-                                                degree: "Bachelor's degree",
-                                                program: "CTI",
-                                                specific: "Third Year"
-                                            })
-                                            }
-                                        >   
-                                            <ListItemText primary="Third Year"></ListItemText>
-                                        </ListItemButton>
-                                        <ListItemButton 
-                                            className='leaf-button'
-                                            sx={{pl: 12}}
-                                            selected={
-                                                activeButton?.degree === "Bachelor's degree" &&
-                                                activeButton?.program === "CTI" &&
-                                                activeButton?.specific === "Fourth Year"
-                                            }
-                                            onClick={() => onSelectedAdminItem({
-                                                degree: "Bachelor's degree",
-                                                program: "CTI",
-                                                specific: "Fourth Year"
-                                            })
-                                            }
-                                        >
-                                            <ListItemText primary="Fourth Year"></ListItemText>
-                                        </ListItemButton>
-                                    </List>
-                                </Collapse>
-
-                                <ListItemButton
-                                    sx={{ pl: 8 }}
-                                    selected={open['is-bachelor']}
-                                    onClick={() => handleClick('is-bachelor')}
-                                >
-                                    <ListItemText primary="IS"></ListItemText>
-                                    {open['is-bachelor'] ? <ExpandLess /> : <ExpandMore />}
-                                </ListItemButton>
-
-                                <Collapse in={open['is-bachelor']} timeout="auto" unmountOnExit>
-                                    <List component="div" disablePadding>
-                                        <ListItemButton 
-                                            className='leaf-button'
-                                            sx={{pl: 12}}
-                                            selected={
-                                                activeButton?.degree === "Bachelor's degree" &&
-                                                activeButton?.program === "IS" &&
-                                                activeButton?.specific === "First Year"
-                                            }
-                                            onClick={() => onSelectedAdminItem({
-                                                degree: "Bachelor's degree",
-                                                program: "IS",
-                                                specific: "First Year"
-                                            })
-                                            }
-                                        >
-                                            <ListItemText primary="First Year"></ListItemText>
-                                        </ListItemButton>
-                                        <ListItemButton
-                                            className='leaf-button'
-                                            sx={{pl: 12}}
-                                            selected={
-                                                activeButton?.degree === "Bachelor's degree" &&
-                                                activeButton?.program === "IS" &&
-                                                activeButton?.specific === "Second Year"
-                                            }
-                                            onClick={() => onSelectedAdminItem({
-                                                degree: "Bachelor's degree",
-                                                program: "IS",
-                                                specific: "Second Year"
-                                            })
-                                            }
-                                         >
-                                            <ListItemText primary="Second Year"></ListItemText>
-                                        </ListItemButton>
-                                        <ListItemButton 
-                                            className='leaf-button'
-                                            sx={{pl: 12}}
-                                            selected={
-                                                activeButton?.degree === "Bachelor's degree" &&
-                                                activeButton?.program === "IS" &&
-                                                activeButton?.specific === "Third Year"
-                                            }
-                                            onClick={() => onSelectedAdminItem({
-                                                degree: "Bachelor's degree",
-                                                program: "IS",
-                                                specific: "Third Year"
-                                            })
-                                            }
-                                        >
-                                            <ListItemText primary="Third Year"></ListItemText>
-                                        </ListItemButton>
-                                        <ListItemButton 
-                                            className='leaf-button'
-                                            sx={{pl: 12}}
-                                            selected={
-                                                activeButton?.degree === "Bachelor's degree" &&
-                                                activeButton?.program === "IS" &&
-                                                activeButton?.specific === "Fourth Year"
-                                            }
-                                            onClick={() => onSelectedAdminItem({
-                                                degree: "Bachelor's degree",
-                                                program: "IS",
-                                                specific: "Fourth Year"
-                                            })
-                                            }
-                                        >
-                                            <ListItemText primary="Fourth Year"></ListItemText>
-                                        </ListItemButton>
-                                    </List>
-                                </Collapse>
-
-                            </List>
-                        </Collapse>
-
-                        <ListItemButton 
-                            sx={{ pl: 4 }}
-                            selected={open.master}
-                            onClick={() => handleClick('master')}
-                        >
-                            <ListItemText primary="Master's degree"></ListItemText>
-                            {open.master ? <ExpandLess /> : <ExpandMore />}
-                        </ListItemButton>
-
-                        <Collapse in={open.master} timeout="auto" unmountOnExit>
-                            <List component="div" disablePadding>
-                                <ListItemButton
-                                    sx={{ pl: 8 }}
-                                    selected={open['cti-master']}
-                                    onClick={() => handleClick('cti-master')}
-                                >
-                                    <ListItemText primary="CTI"></ListItemText>
-                                    {open['cti-master'] ? <ExpandLess /> : <ExpandMore />}
-                                </ListItemButton>
-
-                                <Collapse in={open['cti-master']} timeout="auto" unmountOnExit>
-                                    <List component="div" disablePadding>
-                                        <ListItemButton
-                                            className='leaf-button'
-                                            sx={{pl: 12}}
-                                            selected={
-                                                activeButton?.degree === "Master's degree" &&
-                                                activeButton?.program === "CTI" &&
-                                                activeButton?.specific === "Artificial Intelligence"
-                                            }
-                                            onClick={() => onSelectedAdminItem({
-                                                degree: "Master's degree",
-                                                program: "CTI",
-                                                specific: "Artificial Intelligence"
-                                            })
-                                            }
-                                        >
-                                            <ListItemText primary="Artificial Intelligence"></ListItemText>
-                                        </ListItemButton>
-                                        <ListItemButton 
-                                            className='leaf-button'
-                                            sx={{pl: 12}}
-                                            selected={
-                                                activeButton?.degree === "Master's degree" &&
-                                                activeButton?.program === "CTI" &&
-                                                activeButton?.specific === "Embedded Computers"
-                                            }
-                                            onClick={() => onSelectedAdminItem({
-                                                degree: "Master's degree",
-                                                program: "CTI",
-                                                specific: "Embedded Computers"
-                                            })
-                                            }
-                                        >
-                                            <ListItemText primary="Embedded Computers"></ListItemText>
-                                        </ListItemButton>
-                                        <ListItemButton 
-                                            className='leaf-button'
-                                            sx={{pl: 12}}
-                                            selected={
-                                                activeButton?.degree === "Master's degree" &&
-                                                activeButton?.program === "CTI" &&
-                                                activeButton?.specific === "Distributed Systems and Web Technologies"
-                                            }
-                                            onClick={() => onSelectedAdminItem({
-                                                degree: "Master's degree",
-                                                program: "CTI",
-                                                specific: "Distributed Systems and Web Technologies"
-                                            })
-                                            }
-                                        >
-                                            <ListItemText primary="Distributed Systems and Web Technologies"></ListItemText>
-                                        </ListItemButton>
-                                        <ListItemButton 
-                                            className='leaf-button'
-                                            sx={{pl: 12}}
-                                            selected={
-                                                    activeButton?.degree === "Master's degree" &&
-                                                    activeButton?.program === "CTI" &&
-                                                    activeButton?.specific === "Cyberspace security"
-                                                }
-                                                onClick={() => onSelectedAdminItem({
-                                                    degree: "Master's degree",
-                                                    program: "CTI",
-                                                    specific: "Cyberspace security"
-                                                })
-                                            }
-                                        >
-                                            <ListItemText primary="Cyberspace security"></ListItemText>
-                                        </ListItemButton>
-                                    </List>
-                                </Collapse>
-
-                                <ListItemButton
-                                    sx={{ pl: 8 }}
-                                    selected={open['is-master']}
-                                    onClick={() => handleClick('is-master')}
-                                >
-                                    <ListItemText primary="IS"></ListItemText>
-                                    {open['is-master'] ? <ExpandLess /> : <ExpandMore />}
-                                </ListItemButton>
-
-                                <Collapse in={open['is-master']} timeout="auto" unmountOnExit>
-                                    <List component="div" disablePadding>
-                                        <ListItemButton
-                                            className='leaf-button'
-                                            sx={{pl: 12}}
-                                            selected={
-                                                activeButton?.degree === "Master's degree" &&
-                                                activeButton?.program === "IS" &&
-                                                activeButton?.specific === "Machine Learning, Robotics and Control"
-                                            }
-                                            onClick={() => onSelectedAdminItem({
-                                                degree: "Master's degree",
-                                                program: "IS",
-                                                specific: "Machine Learning, Robotics and Control"
-                                            })
-                                        }
-                                         >
-                                            <ListItemText primary="Machine Learning, Robotics and Control"></ListItemText>
-                                        </ListItemButton>
-                                        <ListItemButton 
-                                            className='leaf-button'
-                                            sx={{pl: 12}}
-                                            selected={
-                                                activeButton?.degree === "Master's degree" &&
-                                                activeButton?.program === "IS" &&
-                                                activeButton?.specific === "Embedded Control Systems"
-                                            }
-                                            onClick={() => onSelectedAdminItem({
-                                                degree: "Master's degree",
-                                                program: "IS",
-                                                specific: "Embedded Control Systems"
-                                            })
-                                        }
-                                        >
-                                            <ListItemText primary="Embedded Control Systems"></ListItemText>
-                                        </ListItemButton>
-                                    </List>
-                                </Collapse>
-
-                            </List>
-                        </Collapse>
-
-                    </List>
-                </Collapse>
-
-                <div className="students-expand-button">
-                    <ListItemButton
-                        className='leaf-button'
-                        //Temporary solution
-                        selected={
-                            activeButton?.degree === "Professors" &&
-                            activeButton?.program === "Professors" &&
-                            activeButton?.specific === "Professors"
-                            }
-                            onClick={() => onSelectedAdminItem({
-                                degree: "Professors",
-                                program: "Professors",
-                                specific: "Professors"
-                            })
-                        }
-                    >
-                        <ListItemText primary="Professors"></ListItemText>
-                    </ListItemButton>
-                </div>
+            <nav className='admin-menu-items'>
+                <List disablePadding>
+                    {menuData.map(node => renderNode(node))}
+                </List>
             </nav>
         </aside>
     )

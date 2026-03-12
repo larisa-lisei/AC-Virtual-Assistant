@@ -37,6 +37,9 @@ export const theme = createTheme({
                     '&.leaf-button.Mui-selected .MuiTypography-root': {
                         color: 'white',
                     },
+                    '&.expanded .MuiTypography-root': {
+                        color: '#1B2058',
+                    },
                 },
             },
         },

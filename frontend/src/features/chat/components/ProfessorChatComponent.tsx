@@ -2,16 +2,32 @@ import { Switch } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import './ChatComponent.css'
 import { useState } from 'react';
+import type { Course } from '../ChatPage';
 
 type ConvMode = 'professor' | 'student';
 
-export default function ProfessorChatComponent() {
+interface ProfessorChatComponentProps {
+    selectedCourse?: Course;
+}
+
+export default function ProfessorChatComponent({selectedCourse}:ProfessorChatComponentProps) {
     const [convMode, setConvMode] =  useState<ConvMode>('professor');
+
+    if(!selectedCourse) {
+        return (
+            <div className="chat-component-container">
+                <div className="chat-description">
+                    <h2>Welcome to Ac Virtual Assistant!</h2>
+                    <p>Select one of your courses and let's get started!</p>
+                </div>
+            </div>
+        )
+    }
 
     return (
             <div className="chat-component-container">
                 <div className="course-title professor">
-                    <h3>Course Title</h3>
+                    <h3>{selectedCourse.title}</h3>
                     <div className="switch-button">
                         <span>Professor</span>
                         <Switch 

@@ -41,6 +41,17 @@ nav {
     text-overflow: ellipse;
 }
 
+.professor-menu-items, .professor-menu-courses {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.professor-menu-courses h3 {
+    text-align: left;
+    margin-bottom: 0;
+}
+
 .professor-menu-items button {
     width: 60%;
     font-size: medium;
@@ -65,6 +76,7 @@ nav {
 .admin-menu-items {
     gap: 0;
     text-wrap: nowrap;
-    overflow-x: auto;
+    overflow: hidden;
     scrollbar-width: none;
+    text-overflow: ellipsis;
 }

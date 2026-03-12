@@ -1,16 +1,10 @@
 import './MenuComponent.css'
-
-export interface Course {
-    id: number;
-    title: string;
-}
+import { type Course } from '../../ChatPage'
 
 interface StudentMenuProps {
     courses: Course[];
     selectedCourseId: number | null;
     onSelectedCourse: (courseId: number) => void;
-    menuOpen: boolean;
-    onToggleMenu: () => void;
 }
 
 export default function StudentMenu({

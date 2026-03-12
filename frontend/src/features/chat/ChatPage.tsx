@@ -34,7 +34,7 @@ export interface Student extends User {
 
 export interface Professor extends User {
     role: 'professor';
-    courseId: number;
+    teachingCoursesIds: number[];
 }
 
 export interface Course {
@@ -72,8 +72,8 @@ export default function ChatPage() {
     const[menuOpen, setMenuOpen] = useState(true);
 
     //const [user, setUser] = useState<User>({role: 'student'});
-    //const [user, setUser] = useState<User>({role: 'professor'});
-    const [user, setUser] = useState<User>({role: 'admin'});
+    const [user, setUser] = useState<Professor>({role: 'professor', teachingCoursesIds: [1, 3, 5]});
+    //const [user, setUser] = useState<User>({role: 'admin'});
 
     const selectedCourse = selectedCourseId !== null
         ? courses.find(
@@ -87,6 +87,11 @@ export default function ChatPage() {
             setMessages([]); // new chat when another course is selected
         }
     }
+
+    const professorCourses =
+    user.role === 'professor'
+        ? courses.filter(course => user.teachingCoursesIds.includes(course.id))
+        : [];
 
     const [activeAdminItem, setActiveAdminItem] = useState<AdminMenuOption | null>(null);
 
@@ -104,11 +109,15 @@ export default function ChatPage() {
                 courses={courses}
                 selectedCourseId={selectedCourseId}
                 onSelectedCourse={handleSelectedCourse}
-                onToggleMenu={onToggleMenu}
-                menuOpen={menuOpen}
             />
         ),
-        professor: <ProfessorMenu />,
+        professor: (
+            <ProfessorMenu
+                courses={professorCourses}
+                selectedCourseId={selectedCourseId}
+                onSelectedCourse={handleSelectedCourse}
+            />
+        ),
         admin: (
             <AdminMenu 
                 activeButton={activeAdminItem}
@@ -119,7 +128,7 @@ export default function ChatPage() {
 
     const roleChats = {
         student: <StudentChatComponent selectedCourse={selectedCourse}/>,
-        professor: <ProfessorChatComponent />,
+        professor: <ProfessorChatComponent selectedCourse={selectedCourse} />,
         admin: <AdminChatComponent activeItem={activeAdminItem} />
     };
 
