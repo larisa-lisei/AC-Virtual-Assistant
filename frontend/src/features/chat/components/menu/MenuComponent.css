@@ -1,0 +1,110 @@
+.menu-container {
+    padding: 5px 20px;
+}
+
+.menu-container h2 {
+    color: var(--primary-color);
+    text-align: center;
+    margin: 20px 0px 30px 0px;
+}
+
+nav {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    gap: 30px;
+}
+
+.menu-items button {
+    background: none;
+    border: none;
+    color: var(--secondary-color);
+    cursor: pointer;
+    text-decoration: underline;
+    font-size: large;
+    font-weight: bold;
+    text-wrap: nowrap;
+    overflow: hidden;
+    width: 100%;
+    text-align: left;
+    text-overflow: ellipsis;
+}
+
+.menu-items button:hover, 
+.menu-items button:focus,
+.menu-items button.is-active {
+    color: var(--primary-color);
+}
+
+.menu-container.professor {
+    text-wrap: nowrap;
+    text-overflow: ellipse;
+}
+
+.professor-menu-items, .professor-menu-courses {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.professor-menu-courses h3 {
+    text-align: left;
+    margin-bottom: 0;
+    color: var(--primary-color);
+}
+
+.professor-menu-items button {
+    width: 60%;
+    font-size: medium;
+    text-wrap: nowrap;
+}
+
+.professor-hints-item {
+    font-size: 1.4em;
+    font-weight: bold;
+    color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    align-self: center;
+    width: 60%;
+}
+
+.students-expand-button {
+    border-bottom: 2px solid var(--primary-color);
+}
+
+.admin-menu-items {
+    gap: 0;
+    text-wrap: nowrap;
+    overflow: hidden;
+    scrollbar-width: none;
+    text-overflow: ellipsis;
+}
+
+@media(max-width: 510px) {
+    .menu-container h2 {
+        font-size: 1.1rem;
+        text-wrap: wrap;
+    }
+
+    .menu-items button,
+    .professor-menu-items button {
+        font-size: 0.8rem;
+    }
+
+    .professor-hints-item,
+    .menu-items h3 {
+        font-size: 1rem;
+    }
+
+    .menu-items h3 {
+        margin-top: 0;
+    }
+
+    .admin-menu-items .MuiListItemText-primary {
+        font-size: 0.8rem;
+        overflow-x: hidden;
+        text-overflow: ellipsis;
+    }
+}

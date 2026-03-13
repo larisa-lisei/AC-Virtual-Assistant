@@ -1,0 +1,26 @@
+:root {
+  font-family: Comme, 'Times New Roman', Times, sans-serif;
+  --primary-color: #1B2058;
+  --secondary-color: rgb(93, 93, 93);
+  --chat-background:  rgb(235, 237, 255);
+  --hover-color: #101442;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background-color: white;
+}
+
+body.login-page {
+  background-color: var(--chat-background);
+}
+
+#root {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

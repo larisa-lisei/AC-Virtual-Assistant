@@ -1,0 +1,196 @@
+.chat-component-container {
+    background-color: white;
+    border-radius: 15px;
+    height: 95%;
+    margin: 20px;
+    margin-left: 0;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+.course-title {
+    width: 100%;
+    border-bottom: 2px solid var(--primary-color);
+}
+
+.course-title h3 {
+    margin-left: 25px;
+    color: var(--primary-color);
+}
+
+.course-title.professor {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.switch-button {
+    margin-right: 20px;
+    color: var(--primary-color);
+    font-weight: bold;
+    text-wrap: nowrap;
+}
+
+.chat-description {
+    width: fit-content;
+    height: calc(100% - 40px);
+    text-align: center;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-self: center;
+    min-width: 0;
+    margin: 0px 30px 0px 30px;
+}
+
+.chat-description h2 {
+    color: var(--primary-color);
+    margin: 0;
+}
+
+.chat-description p {
+    color: var(--secondary-color);
+    font-weight: bold;
+}
+
+.input-text {
+    margin: 20px;
+    text-align: center;
+}
+
+.input-wrapper {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.input-wrapper input {
+    width: 100%;
+    padding: 40px 50px 40px 16px;
+    border: 2px solid var(--primary-color);
+    border-radius: 15px;
+    box-sizing: border-box;
+}
+
+.input-wrapper.admin input {
+    padding-top: 20px;
+    padding-bottom: 20px;
+    border-radius: 25px;
+}
+
+.input-wrapper .input-icon {
+    position: absolute;
+    right: 15px;
+    cursor: pointer;
+}
+
+.input-icon {
+    color: var(--primary-color);
+}
+
+.input-icon:hover {
+    filter: drop-shadow(0px 0px 6px rgba(0,0,0,0.3));
+}
+
+.chat-icon {
+    color: var(--primary-color);
+    border: none;
+    background: none;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+}
+
+.admin-title {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.admin-title h2 {
+    color: var(--primary-color);
+}
+
+.admin-title h3 {
+    color: var(--secondary-color);
+}
+
+.admin-table-wrapper {
+    margin: 20px;
+}
+
+.admin-table {
+    border: 2px solid var(--primary-color);
+    border-radius: 10px;
+    width: fit-content;
+}
+
+.admin-row-buttons {
+    display: flex;
+    gap: 5px;
+    justify-content: end;
+}
+
+.admin-row-buttons button:hover {
+    border: 2px solid var(--primary-color);
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.admin-add-account {
+    text-align: center;
+    margin: 20px 0pc 20px 0px;
+}
+
+.admin-account-email {
+    color: black;
+    text-wrap: nowrap;
+}
+
+@media(max-width: 810px) {
+    .chat-component-container, .chat-description {
+        overflow-x: hidden;
+    }
+
+    .chat-description h2 {
+        font-size: 1.1rem;
+    }
+
+    .course-title.professor h3 {
+        font-size: 0.9rem;
+        margin-bottom: 0;
+    }
+
+    .admin-title h2 {
+        font-size: 1.1rem;
+        margin-left: 20px;
+    }
+
+    .admin-title h3 {
+        font-size: 0.8rem;
+        margin-left: 10px;
+    }
+
+    .switch-button {
+        font-size: 0.8rem;
+    }
+
+    .course-title h3, .switch-button {
+        margin-left: 20px;
+    }
+
+    .course-title.professor {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0;
+    }
+
+    .admin-table .MuiTableCell-root {
+        font-size: 0.9rem;
+    }
+}

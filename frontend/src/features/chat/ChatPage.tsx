@@ -1,0 +1,198 @@
+import './ChatPage.css';
+import PersonPinIcon from '@mui/icons-material/PersonPin';
+import ArrowCircleLeftIcon from '@mui/icons-material/ArrowCircleLeft';
+import ArrowCircleRightIcon from '@mui/icons-material/ArrowCircleRight';
+import LogoutIcon from '@mui/icons-material/Logout';
+import  StudentMenu from './components/menu/StudentMenu';
+import ProfessorMenu from './components/menu/ProfessorMenu';
+import StudentChatComponent from './components/StudentChatComponent';
+import { useState } from 'react';
+import ProfessorChatComponent from './components/ProfessorChatComponent';
+import AdminMenu from './components/menu/AdminMenu';
+import AdminChatComponent from './components/AdminChatComponent';
+import { Menu, MenuItem } from '@mui/material';
+
+type MessageRole = 'user' | 'assistant';
+type UserRole = 'student' | 'professor' | 'admin';
+
+export interface Message {
+    id: string;
+    role: MessageRole;
+    text: string;
+}
+
+export interface User {
+    //id: number;
+    //name: string;
+    role: UserRole;
+}
+
+export interface Student extends User {
+    role: 'student';
+    enrolledCoursesIds: number[];
+}
+
+export interface Professor extends User {
+    role: 'professor';
+    teachingCoursesIds: number[];
+}
+
+export interface Course {
+    id: number;
+    title: string;
+}
+
+export interface AdminMenuOption {
+    degree: string;
+    program: string;
+    specific: string;
+}
+
+export default function ChatPage() {
+    const username = ' username';
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+    const logoutMenuOpen = Boolean(anchorEl);
+    const handleLogoutMenuClick = (event: React.MouseEvent<HTMLElement>) => {
+        setAnchorEl(event.currentTarget);
+    }
+    const handleLogoutMenuClose = () => {
+        setAnchorEl(null);
+    }
+
+    const courses: Course[] = [
+        { id: 1, title: 'Parallel and Distributed Algorithms' },
+        { id: 2, title: 'Artificial Intelligence' },
+        { id: 3, title: 'Web Application Development' },
+        { id: 4, title: 'Mobile Application Development' },
+        { id: 5, title: 'Service-Oriented Programming' }
+    ];
+
+    const [selectedCourseId, setSelectedCourseId] = useState<number | null>(null);
+    const [messages, setMessages] = useState<Message[]>([]);
+    const[menuOpen, setMenuOpen] = useState(true);
+
+    //const [user, setUser] = useState<User>({role: 'student'});
+    const [user, setUser] = useState<Professor>({role: 'professor', teachingCoursesIds: [1, 3, 5]});
+    //const [user, setUser] = useState<User>({role: 'admin'});
+
+    const selectedCourse = selectedCourseId !== null
+        ? courses.find(
+            (course) => course.id === selectedCourseId
+        )
+        : undefined;
+
+    const handleSelectedCourse = (courseId: number) => {
+        if(selectedCourseId !== courseId) {
+            setSelectedCourseId(courseId);
+            setMessages([]); // new chat when another course is selected
+        }
+    }
+
+    const professorCourses =
+    user.role === 'professor'
+        ? courses.filter(course => user.teachingCoursesIds.includes(course.id))
+        : [];
+
+    const [activeAdminItem, setActiveAdminItem] = useState<AdminMenuOption | null>(null);
+
+    const handleAdminActiveItem = (clickedItem: AdminMenuOption) => {
+        setActiveAdminItem(clickedItem);
+    }
+
+    const onToggleMenu = () => {
+        setMenuOpen((e) => !e)
+    }
+
+    const roleMenus = {
+        student: (
+            <StudentMenu
+                courses={courses}
+                selectedCourseId={selectedCourseId}
+                onSelectedCourse={handleSelectedCourse}
+            />
+        ),
+        professor: (
+            <ProfessorMenu
+                courses={professorCourses}
+                selectedCourseId={selectedCourseId}
+                onSelectedCourse={handleSelectedCourse}
+            />
+        ),
+        admin: (
+            <AdminMenu 
+                activeButton={activeAdminItem}
+                onSelectedAdminItem={handleAdminActiveItem}
+            />
+        ),
+    };
+
+    const roleChats = {
+        student: <StudentChatComponent selectedCourse={selectedCourse}/>,
+        professor: <ProfessorChatComponent selectedCourse={selectedCourse} />,
+        admin: <AdminChatComponent activeItem={activeAdminItem} />
+    };
+
+    return (
+        <div className="chat-layout">
+            <div className="chat-title">
+                <h2>AC Virtual Assistant</h2>
+                <div className="hello-username">
+                    <h2>Hello, {username} </h2>
+
+                    <button
+                        type="button"
+                        onClick={handleLogoutMenuClick}>
+                        <PersonPinIcon sx={{ fontSize: 40 }} className = "profile-icon"/>
+                    </button>
+
+                    <Menu
+                        anchorEl={anchorEl}
+                        open={logoutMenuOpen}
+                        onClose={handleLogoutMenuClose}
+                        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+                        transformOrigin={{ vertical: "top", horizontal: "center" }}
+                        slotProps={{
+                            paper: {
+                                sx: {
+                                    border: '2px solid #1B2058',
+                                    borderRadius: 5,
+                                    marginTop: -0.4
+                                }
+                            }
+                        }}
+                    >
+                        <MenuItem 
+                            onClick={handleLogoutMenuClose}
+                            sx={{
+                                '&:hover': {
+                                    backgroundColor: 'transparent'
+                                }
+                            }}
+                        >
+                            <div className='logout-item'>Logout <LogoutIcon></LogoutIcon></div>
+                        </MenuItem>
+                    </Menu>
+
+                </div>
+            </div>
+            <div className="chat-container">
+                <div className={`chat-menu ${menuOpen ? 'open' : 'closed'}`}>
+                    <div className="chat-menu-panel">
+                        {roleMenus[user.role]}
+                    </div>
+
+                    <button className = {`menu-button ${menuOpen ? 'open' : 'closed'}`} type = "button" onClick={onToggleMenu}>
+                        {menuOpen ? 
+                            <ArrowCircleLeftIcon fontSize='large' /> :
+                            <ArrowCircleRightIcon fontSize='large' />
+                        }
+                    </button>
+                </div>
+                <div className={`chat-messages ${menuOpen ? 'menu-open' : 'menu-close'}`}>
+                {menuOpen && <div className="chat-overlay" onClick={onToggleMenu} />}
+                    {roleChats[user.role]}
+                </div>
+            </div>
+        </div>
+    )
+}
