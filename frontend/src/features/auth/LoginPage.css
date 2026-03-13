@@ -39,16 +39,87 @@
 
 .login-card-info p {
     color: var(--secondary-color);
+    margin-bottom: 0;
 }
 
 form {
     display: flex;
     flex-direction: column;
     gap: 35px;
-    width: 100%;
+    width: 70%;
     margin-top: 35px;
 }
 
 Button {
     align-self: center;
+}
+
+@media(max-width: 1160px) {
+    .login-card {
+        width: 80%;
+        max-height: fit-content;
+    }
+}
+
+@media (max-width: 880px) {
+    .login-card {
+        width: 80%;
+        padding: 40px;
+    }
+
+    h1 {
+        font-size: 1.5rem;
+    }
+
+    p {
+        font-size: 0.8rem;
+    }
+
+    form {
+        width: 85%;
+        gap: 20px;
+        margin-top: 20px;
+    }
+}
+
+@media(max-width: 710px) {
+    .login-card {
+        flex-direction: column;
+        align-items: center;
+        width: 50%;
+    }
+
+    .login-image-container {
+        width: 80px;
+        align-self: center;
+    }
+
+    .login-card-info {
+        width: 100%;
+        align-items: center;
+    }
+}
+
+@media(max-width: 550px) {
+    h1 {
+        font-size: 1.2rem;
+    }
+
+    form {
+        width: 100%;
+    }
+
+    p {
+        font-size: 0.6rem;
+    }
+}
+
+@media(max-width: 390px) {
+    h1 {
+        font-size: 1rem;
+    }
+
+    .login-card {
+        width: 60%;
+    }
 }

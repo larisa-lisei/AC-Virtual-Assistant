@@ -50,6 +50,7 @@ nav {
 .professor-menu-courses h3 {
     text-align: left;
     margin-bottom: 0;
+    color: var(--primary-color);
 }
 
 .professor-menu-items button {
@@ -79,4 +80,31 @@ nav {
     overflow: hidden;
     scrollbar-width: none;
     text-overflow: ellipsis;
+}
+
+@media(max-width: 510px) {
+    .menu-container h2 {
+        font-size: 1.1rem;
+        text-wrap: wrap;
+    }
+
+    .menu-items button,
+    .professor-menu-items button {
+        font-size: 0.8rem;
+    }
+
+    .professor-hints-item,
+    .menu-items h3 {
+        font-size: 1rem;
+    }
+
+    .menu-items h3 {
+        margin-top: 0;
+    }
+
+    .admin-menu-items .MuiListItemText-primary {
+        font-size: 0.8rem;
+        overflow-x: hidden;
+        text-overflow: ellipsis;
+    }
 }

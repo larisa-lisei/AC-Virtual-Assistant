@@ -34,30 +34,28 @@ export default function LoginPage() {
                 <img src={formImage} alt = "Login Form" className="login-image"/>
             </div>
             <div className="login-card-info">
-                <div>
-                    <h1>Welcome to<br/> AC Virtual Assistant!</h1>
-                    <p>Enter your credentials to access your account</p>
-                    <form onSubmit = {handleSubmit}>
-                        <TextField
-                            label="Email"
-                            type="email"
-                            required
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                        />
-                        <TextField
-                            label="Password"
-                            type="password"
-                            required
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                        />
-                        <Button
-                            type="submit"
-                            variant="contained">Sign In
-                        </Button>
-                    </form>
-                </div>
+                <h1>Welcome to<br/> AC Virtual Assistant!</h1>
+                <p>Enter your credentials to access your account</p>
+                <form onSubmit = {handleSubmit}>
+                    <TextField
+                        label="Email"
+                        type="email"
+                        required
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                    />
+                    <TextField
+                        label="Password"
+                        type="password"
+                        required
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                    />
+                    <Button
+                        type="submit"
+                        variant="contained">Sign In
+                    </Button>
+                </form>
             </div>
         </div>
     )

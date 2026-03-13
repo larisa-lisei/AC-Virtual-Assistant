@@ -189,6 +189,7 @@ export default function ChatPage() {
                     </button>
                 </div>
                 <div className={`chat-messages ${menuOpen ? 'menu-open' : 'menu-close'}`}>
+                {menuOpen && <div className="chat-overlay" onClick={onToggleMenu} />}
                     {roleChats[user.role]}
                 </div>
             </div>

@@ -113,3 +113,40 @@
 .menu-button.closed {
     right: -20px;
 }
+
+@media(max-width: 810px) {
+    .chat-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.2);
+        z-index: 1;
+        overflow-x: hidden;
+    }
+
+    .chat-menu {
+        z-index: 11;
+    }
+
+    .chat-messages {
+        position: relative;
+    }
+
+    .menu-open {
+        white-space: nowrap;
+        overflow: hidden;
+    }
+
+    .menu-close {
+        white-space: normal;
+    }
+}
+
+@media(max-width: 510px) {
+    .chat-title h2 {
+        font-size: 1rem;
+    }
+
+    .chat-menu {
+        width: 65%;
+    }
+}
