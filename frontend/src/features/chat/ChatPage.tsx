@@ -72,8 +72,8 @@ export default function ChatPage() {
     const[menuOpen, setMenuOpen] = useState(true);
 
     //const [user, setUser] = useState<User>({role: 'student'});
-    const [user, setUser] = useState<Professor>({role: 'professor', teachingCoursesIds: [1, 3, 5]});
-    //const [user, setUser] = useState<User>({role: 'admin'});
+    //const [user, setUser] = useState<Professor>({role: 'professor', teachingCoursesIds: [1, 3, 5]});
+    const [user, setUser] = useState<User>({role: 'admin'});
 
     const selectedCourse = selectedCourseId !== null
         ? courses.find(
