@@ -33,27 +33,30 @@ const menuData: MenuNode[] = [
                                 id: 'csit-first',
                                 label: "First Year",
                                 value: {
+                                    role: 'student',
                                     degree: "Bachelor's degree",
                                     program: "CSIT",
-                                    specific: "First Year"
+                                    year: 1
                                 },
                             },
                             {
                                 id: 'csit-second',
                                 label: "Second Year",
                                 value: {
+                                    role: 'student',
                                     degree: "Bachelor's degree",
                                     program: "CSIT",
-                                    specific: "Second Year"
+                                    year: 2
                                 },
                             },
                             {
                                 id: 'csit-third',
                                 label: "Third Year",
                                 value: {
+                                    role: 'student',
                                     degree: "Bachelor's degree",
                                     program: "CSIT",
-                                    specific: "Third Year"
+                                    year: 3
                                 },
                             },
                             {
@@ -64,18 +67,22 @@ const menuData: MenuNode[] = [
                                         id: 'cs',
                                         label: "Computer Science",
                                         value: {
+                                            role: 'student',
                                             degree: "Bachelor's degree",
-                                            program: "CSIT - Fourth year",
-                                            specific: "Computer Science"
+                                            program: "CSIT",
+                                            year: 4,
+                                            specialization: "Computer Science"
                                         },
                                     },
                                     {
                                         id: 'it',
                                         label: "Information Technology",
                                         value: {
+                                            role: 'student',
                                             degree: "Bachelor's degree",
-                                            program: "CSIT - Forth Year",
-                                            specific: "Information Technology"
+                                            program: "CSIT",
+                                            year: 4,
+                                            specialization: "Information Technology"
                                         }
                                     },
                                 ]
@@ -90,36 +97,40 @@ const menuData: MenuNode[] = [
                                 id: 'se-first',
                                 label: "First Year",
                                 value: {
+                                    role: 'student',
                                     degree: "Bachelor's degree",
                                     program: "SE",
-                                    specific: "First Year"
+                                    year: 1
                                 },
                             },
                             {
                                 id: 'se-second',
                                 label: "Second Year",
                                 value: {
+                                    role: 'student',
                                     degree: "Bachelor's degree",
                                     program: "SE",
-                                    specific: "Second Year"
+                                    year: 2
                                 },
                             },
                             {
                                 id: 'se-third',
                                 label: "Third Year",
                                 value: {
+                                    role: 'student',
                                     degree: "Bachelor's degree",
                                     program: "SE",
-                                    specific: "Third Year"
+                                    year: 3
                                 },
                             },
                             {
                                 id: 'se-fourth',
                                 label: "Fourth Year",
                                 value: {
+                                    role: 'student',
                                     degree: "Bachelor's degree",
                                     program: "SE",
-                                    specific: "Fourth Year"
+                                    year: 4
                                 }
                             }
                         ]
@@ -142,18 +153,22 @@ const menuData: MenuNode[] = [
                                         id:'ai-first',
                                         label: "First Year",
                                         value: {
+                                            role: 'student',
                                             degree: "Master's degree",
-                                            program: "CSIT - Artificial Intelligence",
-                                            specific: "First Year"
+                                            program: "CSIT",
+                                            specialization: "Artificial Intelligence",
+                                            year: 1
                                         }
                                     },
                                     {
                                         id:'ai-second',
                                         label: "Second Year",
                                         value: {
+                                            role: 'student',
                                             degree: "Master's degree",
-                                            program: "CSIT - Artificial Intelligence",
-                                            specific: "Second Year"
+                                            program: "CSIT",
+                                            specialization: "Artificial Intelligence",
+                                            year: 2
                                         }
                                     },
                                 ]
@@ -166,18 +181,22 @@ const menuData: MenuNode[] = [
                                         id:'ec-first',
                                         label: "First Year",
                                         value: {
+                                            role: 'student',
                                             degree: "Master's degree",
-                                            program: "CSIT - Embedded Computers",
-                                            specific: "First Year"
+                                            program: "CSIT",
+                                            specialization: "Embedded Computers",
+                                            year: 1
                                         }
                                     },
                                     {
                                         id:'ec-second',
                                         label: "Second Year",
                                         value: {
+                                            role: 'student',
                                             degree: "Master's degree",
-                                            program: "CSIT - Embedded Computers",
-                                            specific: "Second Year"
+                                            program: "CSIT",
+                                            specialization: "Embedded Computers",
+                                            year: 2
                                         }
                                     },
                                 ]
@@ -193,18 +212,22 @@ const menuData: MenuNode[] = [
                                         id:'dswt-first',
                                         label: "First Year",
                                         value: {
+                                            role: 'student',
                                             degree: "Master's degree",
-                                            program: "CSIT - Distributed Systems and Web Technologies",
-                                            specific: "First Year"
+                                            program: "CSIT",
+                                            specialization: "Distributed Systems and Web Technologies",
+                                            year: 1
                                         }
                                     },
                                     {
                                         id:'dswt-second',
                                         label: "Second Year",
                                         value: {
+                                            role: 'student',
                                             degree: "Master's degree",
-                                            program: "CSIT - Distributed Systems and Web Technologies",
-                                            specific: "Second Year"
+                                            program: "CSIT",
+                                            specialization: "Distributed Systems and Web Technologies",
+                                            year: 2
                                         }
                                     },
                                 ]
@@ -217,18 +240,22 @@ const menuData: MenuNode[] = [
                                         id:'cs-first',
                                         label: "First Year",
                                         value: {
+                                            role: 'student',
                                             degree: "Master's degree",
-                                            program: "CSIT - Cyberspace Security",
-                                            specific: "First Year"
+                                            program: "CSIT",
+                                            specialization: "Cyberspace Security",
+                                            year: 1
                                         }
                                     },
                                     {
                                         id:'cs-second',
                                         label: "Second Year",
                                         value: {
+                                            role: 'student',
                                             degree: "Master's degree",
-                                            program: "CSIT - Cyberspace Security",
-                                            specific: "Second Year"
+                                            program: "CSIT",
+                                            specialization: "Cyberspace Security",
+                                            year: 2
                                         }
                                     },
                                 ]
@@ -250,18 +277,22 @@ const menuData: MenuNode[] = [
                                         id:'mlrc-first',
                                         label: "First Year",
                                         value: {
+                                            role: 'student',
                                             degree: "Master's degree",
-                                            program: "SE - Machine Learning, Robotics and Control",
-                                            specific: "First Year"
+                                            program: "SE",
+                                            specialization: "Machine Learning, Robotics and Control",
+                                            year: 1
                                         }
                                     },
                                     {
                                         id:'mlrc-second',
                                         label: "Second Year",
                                         value: {
+                                            role: 'student',
                                             degree: "Master's degree",
-                                            program: "SE - Machine Learning, Robotics and Control",
-                                            specific: "Second Year"
+                                            program: "SE",
+                                            specialization: "Machine Learning, Robotics and Control",
+                                            year: 2
                                         }
                                     },
                                 ]
@@ -274,18 +305,22 @@ const menuData: MenuNode[] = [
                                         id:'ecs-first',
                                         label: "First Year",
                                         value: {
+                                            role: 'student',
                                             degree: "Master's degree",
-                                            program: "SE - Embedded Control Systems",
-                                            specific: "First Year"
+                                            program: "SE",
+                                            specialization: "Embedded Control Systems",
+                                            year: 1
                                         }
                                     },
                                     {
                                         id:'ecs-second',
                                         label: "Second Year",
                                         value: {
+                                            role: 'student',
                                             degree: "Master's degree",
-                                            program: "SE - Embedded Control Systems",
-                                            specific: "Second Year"
+                                            program: "SE",
+                                            specialization: "Embedded Control Systems",
+                                            year: 2
                                         }
                                     },
                                 ]
@@ -300,9 +335,7 @@ const menuData: MenuNode[] = [
         id: 'professors',
         label: "Professors",
         value: {
-            degree: "Professors",
-            program: "Professors",
-            specific: "Professors"
+            role: "professor"
         }
     }
 ];
@@ -316,7 +349,8 @@ function isSelected(
     return (
         activeButton.degree === value.degree &&
         activeButton.program === value.program &&
-        activeButton.specific === value.specific
+        activeButton.year === value.year &&
+        activeButton.specialization == value.specialization
     );
 }
 

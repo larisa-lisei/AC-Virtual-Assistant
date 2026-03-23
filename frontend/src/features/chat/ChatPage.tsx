@@ -43,9 +43,11 @@ export interface Course {
 }
 
 export interface AdminMenuOption {
-    degree: string;
-    program: string;
-    specific: string;
+    role: 'student' | 'professor';
+    degree?: string;
+    program?: string;
+    year?: number;
+    specialization?: string;
 }
 
 export default function ChatPage() {
