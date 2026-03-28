@@ -11,14 +11,18 @@ from features.users.exceptions import (
     UserNotActiveError
 )
 
+from .repository import AuthRepository
+from .dependencies import get_current_user
+
+
 router = APIRouter(prefix="/api/auth")
 
 def get_auth_service() -> AuthService:
-    return AuthService(UserRepository())
+    return AuthService(UserRepository(), AuthRepository())
 
 @router.post(
     "/activate-account",
-    status_code=status.HTTP_204_NO_CONTENT
+    status_code=status.HTTP_204_NO_CONTENT,
 )
 def activate_account(
     request: ActivateAccountRequest,
@@ -54,3 +58,13 @@ def login(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=str(e)
         )
+    
+@router.post(
+    "/logout",
+    status_code=status.HTTP_204_NO_CONTENT
+)
+def logout(
+    current_user: dict = Depends(get_current_user),
+    auth_service: AuthService = Depends(get_auth_service)
+):
+    auth_service.logout(current_user["token"], current_user["exp"])
