@@ -14,10 +14,9 @@ from .service import UserService
 from .repository import UserRepository
 from .exceptions import (
     UserAlreadyExistsError,
-    UserNotFoundError
+    UserNotFoundError,
+    InvalidUserIdError
 )
-from .enums import DegreeType
-
 
 router = APIRouter(prefix="/api/users")
 
@@ -29,12 +28,12 @@ def get_user_service() -> UserService:
     status_code=status.HTTP_201_CREATED,
     response_model=StudentResponse | ProfessorResponse
 )
-def create_user(
+async def create_user(
     user_data: CreateUserRequest,
     user_service: UserService = Depends(get_user_service)
 ):
     try:
-        return user_service.create_user(user_data)
+        return await user_service.create_user(user_data)
     except UserAlreadyExistsError as e:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
@@ -66,58 +65,73 @@ def get_professors(
     status_code=status.HTTP_204_NO_CONTENT
 )
 def delete_user(
-    user_email: str,
+    user_id: str,
     user_service: UserService = Depends(get_user_service)
 ):
     try:
-        return user_service.delete_user(user_email)
+        return user_service.delete_user(user_id)
     except UserNotFoundError as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"User with email {e.email} not found."
+            detail=f"User with id {e.user} not found."
+        )
+    except InvalidUserIdError as e:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail=f"Invalid user id: {e.id}"
         )
     
 @router.patch(
-    "/students/{email}",
+    "/students/{user_id}",
     status_code=status.HTTP_204_NO_CONTENT
 )
 def update_student(
-    email: str,
+    user_id: str,
     student_data: UpdateStudentRequest,
     user_service: UserService = Depends(get_user_service)
 ):
     try:
-        return user_service.update_student(email, student_data)
+        return user_service.update_student(user_id, student_data)
     except UserNotFoundError as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Student with email {e.email} not found."
+            detail=f"Student with id {e.user} not found."
         )
     except UserAlreadyExistsError as e:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail=f"Student with email {e.email} already exists."
         )
+    except InvalidUserIdError as e:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail=f"Invalid user id: {e.id}"
+        )
     
 @router.patch(
-    "/professors/{email}",
+    "/professors/{user_id}",
     status_code=status.HTTP_204_NO_CONTENT
 )
 def update_professor(
-    email: str,
+    user_id: str,
     professor_data: UpdateProfessorRequest,
     user_service: UserService = Depends(get_user_service)
 ):
     try:
-        return user_service.update_professor(email, professor_data)
+        return user_service.update_professor(user_id, professor_data)
     except UserNotFoundError as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Prfessor with email {e.email} not found."
+            detail=f"Prfessor with id {e.user} not found."
         )
     except UserAlreadyExistsError as e:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail=f"Professor with email {e.email} already exists."
+        )
+    except InvalidUserIdError as e:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail=f"Invalid user id: {e.id}"
         )
         
