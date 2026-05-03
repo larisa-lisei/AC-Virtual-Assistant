@@ -7,7 +7,6 @@ from langchain_community.document_loaders import PyPDFLoader
 from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
-from .repository import RagRepository
 from .schemas import (
     DocumentUploadResponse,
     ChatResponse,
@@ -20,11 +19,9 @@ from .exceptions import (
 )
 from core.config import settings
 
-from .llm_service import LlmService
-
 class RagService:
-    def __init__(self, repository: RagRepository, llm_service: LlmService):
-        self.repository = repository
+    def __init__(self, rag_repository, llm_service):
+        self.repository = rag_repository
         self.llm_service = llm_service
         self.text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=500,

@@ -1,7 +1,6 @@
 from bson import ObjectId
 from bson.errors import InvalidId
 
-from .repository import UserRepository
 from .schemas import (
     CreateStudentRequest, 
     CreateProfessorRequest,
@@ -23,8 +22,8 @@ from features.auth.utils import create_activation_token
 from features.auth.email import send_activation_email
 
 class UserService:
-    def __init__(self, repository: UserRepository):
-        self.repository = repository
+    def __init__(self, user_repository):
+        self.repository = user_repository
 
     def _to_student_response(self, user: dict) -> StudentResponse:
         return StudentResponse(

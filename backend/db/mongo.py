@@ -11,6 +11,7 @@ db: Database = client[DATABASE_NAME]
 
 users: Collection = db["users"]
 blacklist: Collection = db["token_blacklist"]
+student_question_logs: Collection = db["student_question_logs"]
 
-pdf_chunks_collection: Collection = db["pdf_chunks"]
-chat_history_collection: Collection = db["chat_history"]
+#pdf_chunks_collection: Collection = db["pdf_chunks"]
+#chat_history_collection: Collection = db["chat_history"]

@@ -1,7 +1,6 @@
 from datetime import datetime, timezone
 from jose import JWTError
 
-from features.users.repository import UserRepository
 from .utils import (
     decode_token, 
     hash_password, 
@@ -17,10 +16,8 @@ from features.users.exceptions import (
     AccountAlreadyActiveError
 )
 
-from .repository import AuthRepository
-
 class AuthService:
-    def __init__(self, user_repo: UserRepository, auth_repo: AuthRepository):
+    def __init__(self, user_repo, auth_repo):
         self.user_repo = user_repo
         self.auth_repo = auth_repo
 
