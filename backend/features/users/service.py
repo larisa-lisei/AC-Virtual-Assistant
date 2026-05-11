@@ -9,13 +9,15 @@ from .schemas import (
     UpdateStudentRequest,
     UpdateProfessorRequest,
     StudentFiltersParams,
-    ProfessorFiltersParams
+    ProfessorFiltersParams,
+    UserRole
 )
 
 from .exceptions import (
     UserAlreadyExistsError,
     UserNotFoundError,
-    InvalidUserIdError
+    InvalidUserIdError,
+    CourseNotFoundError
 )
 
 from features.auth.utils import create_activation_token
@@ -42,7 +44,8 @@ class UserService:
             id=str(user["_id"]),
             email=user["email"],
             role=user["role"],
-            program=user["program"]
+            program=user["program"],
+            course_ids=user.get("course_ids", [])
         )
     
     def _validate_user_id(self, user_id: str):
@@ -50,30 +53,66 @@ class UserService:
             ObjectId(user_id)
         except InvalidId:
             raise InvalidUserIdError(user_id)
-
-    async def create_user(
-        self, user_data: CreateStudentRequest | CreateProfessorRequest
-    ) -> StudentResponse | ProfessorResponse:
         
-        if self.repository.find_by_email(user_data.email):
-            raise UserAlreadyExistsError(user_data.email)
+    async def _create_base_user(self, email: str, user_dict: dict) -> dict:
+        if self.repository.find_by_email(email):
+            raise UserAlreadyExistsError(email)
         
-        user_dict = user_data.model_dump()
         user_dict["is_active"] = False 
         user_dict["password"] = None
-        
+
         created_user = self.repository.create_user(user_dict)
 
         # activation token
-        activation_token = create_activation_token(user_data.email)
-        self.repository.set_activation_token(user_data.email, activation_token)
+        activation_token = create_activation_token(email)
+        self.repository.set_activation_token(email, activation_token)
 
-        await send_activation_email(user_data.email, activation_token)
+        await send_activation_email(email, activation_token)
 
-        if created_user["role"] == "student":
-            return self._to_student_response(created_user)
+        return created_user
+    
+    async def create_student(self, user_data: CreateStudentRequest) -> StudentResponse:
+        user_dict = user_data.model_dump()
+        user_dict["role"] = UserRole.student
+        created_user = await self._create_base_user(user_data.email, user_dict)
+        return self._to_student_response(created_user)
+
+    async def create_professor(self, user_data: CreateProfessorRequest) -> ProfessorResponse: 
+        user_dict = user_data.model_dump(exclude={"existing_course_ids", "new_course"})
+        user_dict["role"] = UserRole.professor
+
+        course_ids = []
+
+        # verify correct ids for existing courses
+        if user_data.existing_course_ids:
+            courses = self.repository.find_courses_by_ids(user_data.existing_course_ids)
+
+            if len(courses) != len(user_data.existing_course_ids):
+                found_ids = {str(course["_id"]) for course in courses}
+
+                missing_ids = [course_id for course_id in user_data.existing_course_ids if course_id not in found_ids]
+
+                raise CourseNotFoundError(missing_ids)
+
+            course_ids.extend(user_data.existing_course_ids)
+
+        if user_data.new_course:
+            new_course_dict = user_data.new_course.model_dump()
+
+            # verify course doesn't already exist
+            existing_course = self.repository.find_course_by_details(new_course_dict)
+
+            if existing_course:
+                course_ids.append(str(existing_course["_id"]))
+            else:
+                created_course = self.repository.create_course(new_course_dict)
+                course_ids.append(str(created_course["_id"]))
+
+        user_dict["course_ids"] = course_ids
         
-        return self._to_professor_reponse(created_user)
+        created_user = await self._create_base_user(user_data.email, user_dict)
+        
+        return self._to_professor_response(created_user)
     
     def get_students(self, filters: StudentFiltersParams) -> list[StudentResponse]:
         students = self.repository.get_students(filters.model_dump(exclude_none=True))
@@ -81,7 +120,7 @@ class UserService:
 
     def get_professors(self, filters: ProfessorFiltersParams) -> list[ProfessorResponse]:
         professors = self.repository.get_professors(filters.model_dump(exclude_none=True))
-        return [self._to_professor_reponse(professor) for professor in professors]
+        return [self._to_professor_response(professor) for professor in professors]
 
     def delete_user(self, user_id: str):
         self._validate_user_id(user_id)

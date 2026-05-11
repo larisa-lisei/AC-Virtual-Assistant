@@ -8,12 +8,13 @@ class FeedbackRepository:
         self.collection.create_index("course_id")
         self.collection.create_index("created_at")
 
-    def save_question_log(self, course_id, course_name, question, answer_status):
+    def save_question_log(self, course_id, course_name, question, answer_status, answer_preview):
         document = {
             "course_id": course_id,
             "course_name": course_name,
             "question": question,
             "answer_status": answer_status,
+            "answer_preview": answer_preview,
             "created_at": datetime.now(timezone.utc)
         }
 

@@ -25,3 +25,7 @@ class UserNotActiveError(Exception):
 class InvalidUserIdError(Exception):
     def __init__(self, id: str):
         self.id = id
+
+class CourseNotFoundError(Exception):
+    def __init__(self, course_ids: list[str]):
+        self.course_ids = course_ids

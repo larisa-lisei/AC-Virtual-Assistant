@@ -8,3 +8,7 @@ class UserRole(str, Enum):
 class DegreeType(str, Enum):
     bachelor = "bachelor"
     master = "master"
+
+class ProgramType(str, Enum):
+    csit = "Computer Science and Information Technology"
+    se = "Software Engineering"

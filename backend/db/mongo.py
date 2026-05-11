@@ -10,6 +10,7 @@ client = MongoClient(MONGO_URL)
 db: Database = client[DATABASE_NAME]
 
 users: Collection = db["users"]
+courses: Collection = db["courses"]
 blacklist: Collection = db["token_blacklist"]
 student_question_logs: Collection = db["student_question_logs"]
 

@@ -1,9 +1,8 @@
-from typing import Optional
-
 from fastapi import APIRouter, Depends, HTTPException, status
 from .schemas import (
-    CreateUserRequest, 
+    CreateStudentRequest, 
     StudentResponse,
+    CreateProfessorRequest,
     ProfessorResponse,
     UpdateStudentRequest,
     UpdateProfessorRequest,
@@ -15,7 +14,8 @@ from .repository import UserRepository
 from .exceptions import (
     UserAlreadyExistsError,
     UserNotFoundError,
-    InvalidUserIdError
+    InvalidUserIdError,
+    CourseNotFoundError
 )
 
 router = APIRouter(prefix="/api/users")
@@ -24,20 +24,42 @@ def get_user_service() -> UserService:
     return UserService(UserRepository())
 
 @router.post(
-    "/add-account",
+    "/add-account/student",
     status_code=status.HTTP_201_CREATED,
-    response_model=StudentResponse | ProfessorResponse
+    response_model=StudentResponse
 )
-async def create_user(
-    user_data: CreateUserRequest,
+async def create_student(
+    user_data: CreateStudentRequest,
     user_service: UserService = Depends(get_user_service)
 ):
     try:
-        return await user_service.create_user(user_data)
+        return await user_service.create_student(user_data)
     except UserAlreadyExistsError as e:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail=f"User with email {e.email} already exists."
+        )
+    
+@router.post(
+    "/add-account/professor",
+    status_code=status.HTTP_201_CREATED,
+    response_model=ProfessorResponse
+)
+async def create_professor(
+    user_data: CreateProfessorRequest,
+    user_service: UserService = Depends(get_user_service)
+):
+    try:
+        return await user_service.create_professor(user_data)
+    except UserAlreadyExistsError as e:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=f"User with email {e.email} already exists."
+        )
+    except CourseNotFoundError as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Courses with ids {e.course_ids} not found."
         )
     
 @router.get(

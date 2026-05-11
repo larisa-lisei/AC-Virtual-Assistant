@@ -20,9 +20,10 @@ from .exceptions import (
 from core.config import settings
 
 class RagService:
-    def __init__(self, rag_repository, llm_service):
+    def __init__(self, rag_repository, llm_service, feedback_service):
         self.repository = rag_repository
         self.llm_service = llm_service
+        self.feedback_service = feedback_service
         self.text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=500,
             chunk_overlap=75
@@ -114,6 +115,13 @@ class RagService:
         )
 
         if not retrieved_docs:
+            self.feedback_service.log_student_question(
+                course_id,
+                course_name,
+                question,
+                answer_status="no_relevant_docs",
+                answer=None
+            )
             raise NoRelevantDocsError()
 
         prompt = self._build_prompt(
@@ -123,6 +131,14 @@ class RagService:
         )
 
         answer = self.llm_service.generate_answer(prompt)
+
+        self.feedback_service.log_student_question(
+            course_id,
+            course_name,
+            question,
+            answer_status="answered",
+            answer=answer
+        )
 
         sources = [
             SourceChunk(

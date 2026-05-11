@@ -6,24 +6,46 @@ import re
 
 class UserRepository:
     def __init__(self):
-        self.collection = db["users"]
+        self.users_collection = db["users"]
+        self.courses_collection = db["courses"]
 
     def find_by_id(self, user_id: str):
-        return self.collection.find_one({"_id": ObjectId(user_id)})
+        return self.users_collection.find_one({"_id": ObjectId(user_id)})
 
     def find_by_email(self, email: str):
-        return self.collection.find_one({"email": email})
+        return self.users_collection.find_one({"email": email})
 
     def create_user(self, user_data: dict):
-        result = self.collection.insert_one(user_data)
-        created_user =  self.collection.find_one({"_id": result.inserted_id})
+        result = self.users_collection.insert_one(user_data)
+        created_user =  self.users_collection.find_one({"_id": result.inserted_id})
         return created_user
     
+    def create_course(self, course_data: dict):
+        result = self.courses_collection.insert_one(course_data)
+        return self.courses_collection.find_one({"_id": result.inserted_id})
+    
+    def find_courses_by_id(self, course_ids: list[str]):
+        object_ids = [ObjectId(course_ids) for course_id in course_ids]
+        return list(
+            self.courses_collection.find({
+                "_id": {"$in": object_ids}
+            })
+        )
+    
+    def find_course_by_details(self, course_data: dict):
+        return self.courses_collection.find_one({
+            "name": course_data["name"],
+            "degree": course_data["degree"],
+            "program": course_data["program"],
+            "year": course_data["year"],
+            "specialization": course_data.get("specialization")
+        })
+
     def find_by_activation_token(self, token: str):
-        return self.collection.find_one({"activation_token": token})
+        return self.users_collection.find_one({"activation_token": token})
     
     def activate_user(self, email: str, hashed_password: str) -> bool:
-        result = self.collection.update_one(
+        result = self.users_collection.update_one(
             {"email": email},
             {
                 "$set": {
@@ -39,7 +61,7 @@ class UserRepository:
         return result.modified_count > 0
     
     def set_activation_token(self, email: str, token: str) -> bool:
-        result = self.collection.update_one(
+        result = self.users_collection.update_one(
                 {"email": email},
                 {"$set": {"activation_token": token, "is_active": False}}
         )
@@ -69,7 +91,7 @@ class UserRepository:
             filters=filters,
             partial_fields={"email", "group"}
         )
-        return list(self.collection.find(query))
+        return list(self.users_collection.find(query))
     
     def get_professors(self, filters: dict) -> list:
         query = self._build_query(
@@ -77,14 +99,14 @@ class UserRepository:
             filters=filters,
             partial_fields={"email"}
         )
-        return list(self.collection.find(query))
+        return list(self.users_collection.find(query))
     
     def delete_user(self, user_id: str) -> bool:
-        result = self.collection.delete_one({"_id": ObjectId(user_id)})
+        result = self.users_collection.delete_one({"_id": ObjectId(user_id)})
         return result.deleted_count > 0
     
     def update_user_by_id(self, user_id: str, updated_fields: dict) -> bool:
-        result = self.collection.update_one(
+        result = self.users_collection.update_one(
             {"_id": ObjectId(user_id)},
             {"$set": updated_fields}
         )

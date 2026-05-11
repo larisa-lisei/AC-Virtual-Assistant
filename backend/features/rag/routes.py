@@ -14,12 +14,12 @@ from .exceptions import(
 )
 
 from .llm_service import LlmService
-
+from features.feedback.dependencies import get_feedback_service
 
 router = APIRouter(prefix="/api/rag")
 
 def get_rag_service() -> RagService:
-    return RagService(RagRepository(), LlmService())
+    return RagService(RagRepository(), LlmService(), get_feedback_service())
 
 @router.post(
     "/upload-document",

@@ -1,18 +1,17 @@
 from typing import Annotated, Literal, Optional, Union
 
 from pydantic import BaseModel, EmailStr, Field, field_validator
-from .enums import UserRole, DegreeType
+from .enums import UserRole, DegreeType, ProgramType
 
 class CreateStudentRequest(BaseModel):
     email: EmailStr
-    role: Literal[UserRole.student]
     degree: DegreeType 
-    program: str = Field(..., min_length=1, max_length=100)
+    program: ProgramType
     year: int = Field(..., ge=1, le=4)
-    specialization: Optional[str] = Field(None, min_length=1, max_length=100)
+    specialization: str | None = Field(None, min_length=1, max_length=100)
     group: str = Field(..., min_length=1, max_length=10)
 
-    @field_validator("program", "specialization", "group")
+    @field_validator("specialization", "group")
     @classmethod
     def no_blank_strings(cls, value: str | None) -> str | None:
         if value is None:
@@ -23,20 +22,17 @@ class CreateStudentRequest(BaseModel):
 
 class CreateProfessorRequest(BaseModel):
     email: EmailStr
-    role: Literal[UserRole.professor]
-    program: str = Field(..., min_length=1, max_length=100)
+    program: ProgramType
 
-    @field_validator("program")
-    @classmethod
-    def no_blank_program(cls, value: str) -> str | None:
-        if not value.strip():
-            raise ValueError("Field must not be blank.")
-        return value
-
-CreateUserRequest = Annotated[
-    Union[CreateStudentRequest, CreateProfessorRequest],
-    Field(discriminator="role")
-]
+    existing_course_ids: list[str] = []
+    new_course: CreateCourseRequest | None = None
+    
+class CreateCourseRequest(BaseModel):
+    name: str = Field(..., min_length=1, max_length=100)
+    degree: DegreeType
+    program: ProgramType
+    year: int = Field(..., ge=1, le=4)
+    specialization: str | None = Field(None, min_length=1, max_length=100)
 
 class StudentResponse(BaseModel):
     id: str
@@ -53,6 +49,7 @@ class ProfessorResponse(BaseModel):
     email: EmailStr
     role: UserRole
     program: str
+    course_ids: list[str] = []
 
 class StudentFiltersParams(BaseModel):
     degree: Optional[DegreeType] = None
