@@ -43,9 +43,11 @@ export interface Course {
 }
 
 export interface AdminMenuOption {
-    degree: string;
-    program: string;
-    specific: string;
+    role: 'student' | 'professor';
+    degree?: string;
+    program?: string;
+    year?: number;
+    specialization?: string;
 }
 
 export default function ChatPage() {
@@ -72,8 +74,8 @@ export default function ChatPage() {
     const[menuOpen, setMenuOpen] = useState(true);
 
     //const [user, setUser] = useState<User>({role: 'student'});
-    const [user, setUser] = useState<Professor>({role: 'professor', teachingCoursesIds: [1, 3, 5]});
-    //const [user, setUser] = useState<User>({role: 'admin'});
+    //const [user, setUser] = useState<Professor>({role: 'professor', teachingCoursesIds: [1, 3, 5]});
+    const [user, setUser] = useState<User>({role: 'admin'});
 
     const selectedCourse = selectedCourseId !== null
         ? courses.find(
