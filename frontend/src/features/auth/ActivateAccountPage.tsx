@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import {TextField, Button} from '@mui/material';
 
-export default function LoginPage() {
+export default function ActivateAccountPage() {
 
     useEffect(() => {
         document.body.classList.add('login-page');
@@ -14,7 +14,7 @@ export default function LoginPage() {
         };
     }, []);
 
-    const [email, setEmail] = useState("");
+    const [token, setToken] = useState("");
     const [password, setPassword] = useState("");
 
     const navigate = useNavigate();
@@ -31,18 +31,18 @@ export default function LoginPage() {
     return (
         <div className="login-card">
             <div className="login-image-container">
-                <img src={formImage} alt = "Login Form" className="login-image"/>
+                <img src={formImage} alt = "Activate Account Form" className="login-image"/>
             </div>
             <div className="login-card-info">
                 <h1>Welcome to<br/> AC Virtual Assistant!</h1>
-                <p>Enter your credentials to access your account</p>
+                <p>Enter your credentials to activate your account</p>
                 <form onSubmit = {handleSubmit}>
                     <TextField
-                        label="Email"
-                        type="email"
+                        label="Activation Token"
+                        type="text"
                         required
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        value={token}
+                        onChange={(e) => setToken(e.target.value)}
                     />
                     <TextField
                         label="Password"
@@ -51,10 +51,10 @@ export default function LoginPage() {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                     />
-                    <p>Account not activated? <Link to="/activate-account">Click here.</Link></p>
+                    <p>Account already activated? <Link to="/login">Go to login.</Link></p>
                     <Button
                         type="submit"
-                        variant="contained">Sign In
+                        variant="contained">Activate Account
                     </Button>
                 </form>
             </div>

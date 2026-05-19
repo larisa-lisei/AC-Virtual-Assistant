@@ -50,6 +50,15 @@ form {
     margin-top: 35px;
 }
 
+form p {
+    margin-top: 0;
+    text-align: center;
+}
+
+a {
+    color: var(--primary-color);
+}
+
 Button {
     align-self: center;
 }

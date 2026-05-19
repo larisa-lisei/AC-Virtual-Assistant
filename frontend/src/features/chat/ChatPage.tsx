@@ -139,7 +139,7 @@ export default function ChatPage() {
             <div className="chat-title">
                 <h2>AC Virtual Assistant</h2>
                 <div className="hello-username">
-                    <h2>Hello, {username} </h2>
+                    <h2>Hello, professor </h2>
 
                     <button
                         type="button"
