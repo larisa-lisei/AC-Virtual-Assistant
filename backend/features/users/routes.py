@@ -18,6 +18,13 @@ from .exceptions import (
     CourseNotFoundError,
     NoUpdateFieldsProvidedError
 )
+from .enums import (
+    DegreeType,
+    ProgramType,
+    BachelorSpecialization,
+    MasterSESpecialization,
+    MasterCSITSpecialization
+)
 
 router = APIRouter(prefix="/api/users")
 
@@ -162,4 +169,25 @@ def update_professor(
             status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail=f"Invalid user id: {e.id}"
         )
+    
+
+# static endpoint for admin menu 
+@router.get("/admin-menu")
+def get_admin_menu():
+    return {
+        "degrees": {degree.name: degree.value for degree in DegreeType},
+        "programs": {program.name: program.value for program in ProgramType},
+        "specializations": {
+            "bachelor": [spec.value for spec in BachelorSpecialization],
+            "master": {
+                "csit": [spec.value for spec in MasterCSITSpecialization],
+                "se": [spec.value for spec in MasterSESpecialization]
+            }
+        },
+
+        "years": {
+            "bachelor": [1, 2, 3, 4],
+            "master": [1, 2]
+        }
+    }
         
