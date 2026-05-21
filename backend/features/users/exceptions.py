@@ -29,3 +29,7 @@ class InvalidUserIdError(Exception):
 class CourseNotFoundError(Exception):
     def __init__(self, course_ids: list[str]):
         self.course_ids = course_ids
+
+class NoUpdateFieldsProvidedError(Exception):
+    def __str__(self):
+        return "No fields provided for update."

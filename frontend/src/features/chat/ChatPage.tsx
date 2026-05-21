@@ -6,11 +6,12 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import  StudentMenu from './components/menu/StudentMenu';
 import ProfessorMenu from './components/menu/ProfessorMenu';
 import StudentChatComponent from './components/StudentChatComponent';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate} from 'react-router-dom';
 import ProfessorChatComponent from './components/ProfessorChatComponent';
 import AdminMenu from './components/menu/AdminMenu';
 import AdminChatComponent from './components/AdminChatComponent';
-import { Menu, MenuItem } from '@mui/material';
+import { Menu, MenuItem, Snackbar, Alert } from '@mui/material';
 
 type MessageRole = 'user' | 'assistant';
 type UserRole = 'student' | 'professor' | 'admin';
@@ -73,9 +74,80 @@ export default function ChatPage() {
     const [messages, setMessages] = useState<Message[]>([]);
     const[menuOpen, setMenuOpen] = useState(true);
 
+    const [openSnackBar, setOpenSnackBar] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("");
+
+    const navigate = useNavigate();
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     //const [user, setUser] = useState<User>({role: 'student'});
     //const [user, setUser] = useState<Professor>({role: 'professor', teachingCoursesIds: [1, 3, 5]});
-    const [user, setUser] = useState<User>({role: 'admin'});
+    const [user, setUser] = useState<User | null>(null);
+    const [loadingUser, setLoadingUser] = useState(true);
+    const [activeAdminItem, setActiveAdminItem] = useState<AdminMenuOption | null>(null);
+
+    useEffect(() => {
+        const fetchCurrentUser = async () => {
+            try {
+                const response = await fetch(
+                    `${API_BASE_URL}/auth/me`,
+                    {
+                        method: "GET",
+                        credentials: "include"
+                    }
+                );
+
+                if (!response.ok) {
+                    setUser(null);
+                    return;
+                }
+
+                const data = await response.json();
+
+                setUser({
+                    role: data.role
+                });
+            } catch (error) {
+                setUser(null);
+            } finally {
+                setLoadingUser(false);
+            }
+        };
+
+        fetchCurrentUser();
+    }, []);
+    
+    if (loadingUser) {
+        return <p>Loading...</p>;
+    }
+
+    if(!user) {
+        return <p>You are not authenticated.</p>;
+    }
+
+    const handleLogout = async () => {
+        try {
+            const response = await fetch(
+                `${API_BASE_URL}/auth/logout`, 
+                {
+                    method: "POST",
+                    credentials: "include"
+                }
+            );
+
+            if(!response.ok) {
+                const errorData = await response.json();
+                setErrorMessage(errorData.detail);
+                setOpenSnackBar(true);
+                return;
+            }
+
+            navigate("/login");
+
+        } catch (error) {
+            setErrorMessage("Something went wrong.");
+            setOpenSnackBar(true);
+        }
+    };
 
     const selectedCourse = selectedCourseId !== null
         ? courses.find(
@@ -92,10 +164,8 @@ export default function ChatPage() {
 
     const professorCourses =
     user.role === 'professor'
-        ? courses.filter(course => user.teachingCoursesIds.includes(course.id))
+        ? courses //.filter(course => user.teachingCoursesIds.includes(course.id))
         : [];
-
-    const [activeAdminItem, setActiveAdminItem] = useState<AdminMenuOption | null>(null);
 
     const handleAdminActiveItem = (clickedItem: AdminMenuOption) => {
         setActiveAdminItem(clickedItem);
@@ -135,11 +205,12 @@ export default function ChatPage() {
     };
 
     return (
+    <>
         <div className="chat-layout">
             <div className="chat-title">
                 <h2>AC Virtual Assistant</h2>
                 <div className="hello-username">
-                    <h2>Hello, {username} </h2>
+                    <h2>Hello, {user.role} </h2>
 
                     <button
                         type="button"
@@ -164,7 +235,7 @@ export default function ChatPage() {
                         }}
                     >
                         <MenuItem 
-                            onClick={handleLogoutMenuClose}
+                            onClick={handleLogout}
                             sx={{
                                 '&:hover': {
                                     backgroundColor: 'transparent'
@@ -196,5 +267,23 @@ export default function ChatPage() {
                 </div>
             </div>
         </div>
+
+        <Snackbar
+            open={openSnackBar}
+            autoHideDuration={4000}
+            onClose={() => setOpenSnackBar(false)}
+            anchorOrigin={{
+                vertical: "top",
+                horizontal: "right"
+            }}
+        >
+            <Alert
+                severity="error"
+                onClose={() => setOpenSnackBar(false)}
+            >
+                {errorMessage}
+            </Alert>
+        </Snackbar>
+    </>
     )
 }

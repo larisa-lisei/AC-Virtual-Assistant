@@ -15,7 +15,8 @@ from .exceptions import (
     UserAlreadyExistsError,
     UserNotFoundError,
     InvalidUserIdError,
-    CourseNotFoundError
+    CourseNotFoundError,
+    NoUpdateFieldsProvidedError
 )
 
 router = APIRouter(prefix="/api/users")
@@ -128,6 +129,11 @@ def update_student(
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail=f"Invalid user id: {e.id}"
+        )
+    except NoUpdateFieldsProvidedError as e:
+        raise HTTPException(
+            status_code==status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
         )
     
 @router.patch(

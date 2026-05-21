@@ -15,6 +15,8 @@ from .exceptions import(
 
 from .llm_service import LlmService
 from features.feedback.dependencies import get_feedback_service
+from features.auth.dependencies import get_current_user
+from features.auth.schemas import CurrentUser
 
 router = APIRouter(prefix="/api/rag")
 
@@ -52,6 +54,7 @@ def upload_document(
 )
 def ask_question(
     request: ChatRequest,
+    current_user: CurrentUser = Depends(get_current_user),
     rag_service: RagService = Depends(get_rag_service)
 ):
     try:

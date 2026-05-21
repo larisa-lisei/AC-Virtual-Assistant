@@ -22,9 +22,9 @@ class AuthService:
         self.auth_repo = auth_repo
 
     def activate_account(self, token: str, password: str):
-        activation_token = self.user_repo.find_by_activation_token(token)
+        user = self.user_repo.find_by_activation_token(token)
 
-        if not activation_token:
+        if not user:
             raise InvalidActivationTokenError()
 
         try:
@@ -36,10 +36,9 @@ class AuthService:
             raise InvalidActivationTokenError()
         
         email = payload.get('sub')
-        user = self.user_repo.find_by_email(email)
 
-        if not user:
-            raise UserNotFoundError(email)
+        if not email or user["email"] != email:
+            raise InvalidActivationTokenError()
         
         if user.get('is_active'):
             raise AccountAlreadyActiveError()
