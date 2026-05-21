@@ -2,7 +2,7 @@ import './LoginPage.css';
 import formImage from '../../assets/login-form.png';
 import { Link, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import {TextField, Button} from '@mui/material';
+import {TextField, Button, Snackbar, Alert} from '@mui/material';
 
 export default function LoginPage() {
 
@@ -17,18 +17,46 @@ export default function LoginPage() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
+    const [openSnackBar, setOpenSnackBar] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("");
+
     const navigate = useNavigate();
 
-    const handleSubmit = (event: React.SubmitEvent<HTMLFormElement>) => {
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+    const handleSubmit = async (event: React.SubmitEvent<HTMLFormElement>) => {
+        // prevent page refresh on form submit
         event.preventDefault()
 
-        //call backend API to authenticate user
+        try {
+            const response = await fetch(`${API_BASE_URL}/auth/login`, {
+                method: "POST",
+                credentials: "include",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({email, password})
+            });
 
-        //successsul login - redirect to student chat page
-        navigate("/student/chat");
+
+            const data = await response.json();
+
+            if(!response.ok) {
+                setErrorMessage(data.detail)
+                setOpenSnackBar(true);
+                return;
+            }
+
+            // successful login - redirect to chat page
+            navigate("/chat");
+        } catch (error) {
+            setErrorMessage("Something went wrong.");
+            setOpenSnackBar(true);
+        }
     };
 
     return (
+    <>
         <div className="login-card">
             <div className="login-image-container">
                 <img src={formImage} alt = "Login Form" className="login-image"/>
@@ -59,5 +87,23 @@ export default function LoginPage() {
                 </form>
             </div>
         </div>
+
+        <Snackbar
+            open={openSnackBar}
+            autoHideDuration={4000}
+            onClose={() => setOpenSnackBar(false)}
+            anchorOrigin={{
+                vertical: "top",
+                horizontal: "right"
+            }}
+        >
+            <Alert
+                severity="error"
+                onClose={() => setOpenSnackBar(false)}
+            >
+                {errorMessage}
+            </Alert>
+        </Snackbar>
+    </>
     )
 }
