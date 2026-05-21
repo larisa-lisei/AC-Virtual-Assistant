@@ -1,46 +1,53 @@
 from fastapi import Depends
-from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jose import JWTError
 from fastapi import HTTPException, status
+from fastapi.security import APIKeyCookie
 
-from features.users.repository import UserRepository
 from features.auth.utils import decode_token
 from .repository import AuthRepository
+from .schemas import CurrentUser
 
-
-bearer = HTTPBearer()
+access_token_cookie = APIKeyCookie(
+    name="access_token",
+    auto_error=False
+)
 
 def get_auth_repository() -> AuthRepository:
     return AuthRepository()
 
 def get_current_user(
-        credentials: HTTPAuthorizationCredentials = Depends(bearer),
+        token: str | None = Depends(access_token_cookie),
         auth_repo: AuthRepository = Depends(get_auth_repository)
-) -> dict:
+) -> CurrentUser:
+    if not token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not authenicated."
+        )
     try:
-        payload = decode_token(credentials.credentials)
+        payload = decode_token(token)
     except JWTError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid or expired token."
         )
     
-    if auth_repo.is_token_blacklisted(credentials.credentials):
+    if auth_repo.is_token_blacklisted(token):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Token has been invalidated."
         )
 
-    return {
-        "email": payload["sub"], 
-        "role": payload["role"],
-        "token": credentials.credentials,
-        "exp": payload["exp"]
-    }
+    return CurrentUser(
+        email=payload["sub"],
+        role=payload["role"],
+        token=token,
+        exp=payload["exp"]
+    )
 
 def require_role(*roles: str):
-    def guard(current_user: dict = Depends(get_current_user)):
-        if current_user["role"] not in roles:
+    def guard(current_user: CurrentUser = Depends(get_current_user)):
+        if current_user.role not in roles:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Access denied."

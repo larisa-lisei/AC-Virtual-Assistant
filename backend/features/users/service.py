@@ -17,7 +17,8 @@ from .exceptions import (
     UserAlreadyExistsError,
     UserNotFoundError,
     InvalidUserIdError,
-    CourseNotFoundError
+    CourseNotFoundError,
+    NoUpdateFieldsProvidedError
 )
 
 from features.auth.utils import create_activation_token
@@ -144,7 +145,7 @@ class UserService:
         new_email = update_data.get("email")
         if new_email and new_email != student["email"]:
             if self.repository.find_by_email(new_email):
-                raise UserAlreadyExistsError(new_email)
+                raise NoUpdateFieldsProvidedError(new_email)
 
         self.repository.update_user_by_id(user_id, update_data)
 
@@ -162,7 +163,7 @@ class UserService:
         update_data = user_data.model_dump(exclude_unset=True)
 
         if not update_data:
-            raise ValueError("No fields were provided for update.")
+            raise NoUpdateFieldsProvidedError("No fields were provided for update.")
         
         new_email = update_data.get("email")
         if new_email and new_email != professor["email"]:

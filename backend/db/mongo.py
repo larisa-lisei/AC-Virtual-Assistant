@@ -16,3 +16,6 @@ student_question_logs: Collection = db["student_question_logs"]
 
 #pdf_chunks_collection: Collection = db["pdf_chunks"]
 #chat_history_collection: Collection = db["chat_history"]
+
+# indexes
+users.create_index("email", unique=True)
