@@ -13,17 +13,6 @@ interface AdminChatComponentProps {
     activeItem:  AdminMenuOption | null;
 }
 
-// year display
-function formatYear(year?: number): string {
-    switch(year) {
-        case 1: return "First Year";
-        case 2: return "Second Year";
-        case 3: return "Third Year";
-        case 4: return "Fourth Year";
-        default: return "";
-    }
-}
-
 // data example 
 function createData(
     no: number,
@@ -60,23 +49,9 @@ export default function AdminChatComponent( {activeItem} : AdminChatComponentPro
     return (
         <div className="chat-component-container">
             <div className="admin-title">
-                <h2>{activeItem.degree}</h2>
-                {
-                activeItem.role === "student" ? (
-                    activeItem.degree === "Bachelor's degree" ? (
-                        <h3>
-                            {activeItem.program} - {formatYear(activeItem.year)}
-                            {activeItem.specialization && ` - ${activeItem.specialization}`}
-                        </h3>
-                    ) : activeItem.degree == "Master's degree" ? (
-                        <h3>
-                            {activeItem.program} - {activeItem.specialization} - {formatYear(activeItem.year)}
-                        </h3>
-                    ) : null
-                ) : (
-                    <h2>Professors</h2>
-                )
-            }
+                <h2>{activeItem.title}</h2>
+                
+                {activeItem.subtitle && (<h3>{activeItem.subtitle}</h3>)}
             </div>
             <div className="input-text">
                 <div className="input-wrapper admin">

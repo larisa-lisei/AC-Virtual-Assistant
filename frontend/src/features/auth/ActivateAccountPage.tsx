@@ -49,14 +49,12 @@ export default function ActivateAccountPage() {
         event.preventDefault()
 
         const tokenFromUrl = searchParams.get("token");
-        console.log("Token from URL:", tokenFromUrl);
         if(!tokenFromUrl) {
             setErrorMessage("Activation token is missing.");
             setOpenSnackBar(true);
             return;
         }
 
-        console.log("PASSWORD: ", password);
         try {
             const response = await fetch(`${API_BASE_URL}/auth/activate-account`, {
                 method: "POST",

@@ -45,10 +45,15 @@ export interface Course {
 
 export interface AdminMenuOption {
     role: 'student' | 'professor';
+
     degree?: string;
     program?: string;
     year?: number;
     specialization?: string;
+
+    // title displayed in chat header 
+    title?: string;
+    subtitle?:string;
 }
 
 export default function ChatPage() {
@@ -76,6 +81,10 @@ export default function ChatPage() {
 
     const [openSnackBar, setOpenSnackBar] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
+    const handleError = (message: string) => {
+        setErrorMessage(message);
+        setOpenSnackBar(true);
+    }
 
     const navigate = useNavigate();
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -194,6 +203,7 @@ export default function ChatPage() {
             <AdminMenu 
                 activeButton={activeAdminItem}
                 onSelectedAdminItem={handleAdminActiveItem}
+                onError={handleError}
             />
         ),
     };
