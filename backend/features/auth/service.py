@@ -9,7 +9,6 @@ from .utils import (
 )
 
 from features.users.exceptions import (
-    UserNotFoundError, 
     InvalidActivationTokenError, 
     InvalidCredentialsError,
     UserNotActiveError,
@@ -56,7 +55,7 @@ class AuthService:
         if not verify_password(password, user['password']):
             raise InvalidCredentialsError()
         
-        token = create_access_token({'sub': user['email'], 'role': user['role']}) 
+        token = create_access_token({ 'sub': str(user['_id']), 'email': user['email'], 'role': user['role']}) 
         return token, user['role']
     
     def logout(self, token: str, exp: int):

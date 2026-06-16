@@ -39,7 +39,8 @@ def get_current_user(
         )
 
     return CurrentUser(
-        email=payload["sub"],
+        id=payload["sub"],
+        email=payload["email"],
         role=payload["role"],
         token=token,
         exp=payload["exp"]

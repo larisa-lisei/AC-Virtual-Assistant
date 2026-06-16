@@ -1,4 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+
+from features.auth.dependencies import get_current_user
+from features.auth.schemas import CurrentUser
+
 from .schemas import (
     CreateStudentRequest, 
     StudentResponse,
@@ -98,9 +102,13 @@ def get_professors(
 )
 def get_courses(
     program: ProgramType | None = None,
+    current_user: CurrentUser = Depends(get_current_user),
     user_service: UserService = Depends(get_user_service)
 ):
-    return user_service.get_courses(program)
+    return user_service.get_courses(
+        program=program,
+        current_user=current_user
+    )
     
 @router.delete(
     "/{user_id}",

@@ -84,6 +84,7 @@ def get_current_user_info(
     current_user: CurrentUser = Depends(get_current_user)
 ):
     return {
+        "id": current_user.id,
         "email": current_user.email,
         "role": current_user.role
     }
