@@ -12,6 +12,7 @@ import ProfessorChatComponent from './components/ProfessorChatComponent';
 import AdminMenu from './components/menu/AdminMenu';
 import AdminChatComponent from './components/AdminChatComponent';
 import { Menu, MenuItem, Snackbar, Alert } from '@mui/material';
+import { getErrorMessage } from '../../utils/error';
 
 type MessageRole = 'user' | 'assistant';
 type UserRole = 'student' | 'professor' | 'admin';
@@ -57,7 +58,6 @@ export interface AdminMenuOption {
 }
 
 export default function ChatPage() {
-    const username = ' username';
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const logoutMenuOpen = Boolean(anchorEl);
     const handleLogoutMenuClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -79,12 +79,31 @@ export default function ChatPage() {
     const [messages, setMessages] = useState<Message[]>([]);
     const[menuOpen, setMenuOpen] = useState(true);
 
-    const [openSnackBar, setOpenSnackBar] = useState(false);
-    const [errorMessage, setErrorMessage] = useState("");
+    const [snackbar, setSnackbar] = useState<{
+        open: boolean;
+        message: string;
+        severity: "success" | "error";
+    }>({
+        open: false,
+        message: "",
+        severity: "success"
+    })
+
     const handleError = (message: string) => {
-        setErrorMessage(message);
-        setOpenSnackBar(true);
-    }
+        setSnackbar({
+            open: true,
+            message,
+            severity: "error"
+        });
+    };
+
+    const handleSuccess = (message: string) => {
+        setSnackbar({
+            open: true,
+            message,
+            severity: "success"
+        });
+    };
 
     const navigate = useNavigate();
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -93,6 +112,7 @@ export default function ChatPage() {
     const [user, setUser] = useState<User | null>(null);
     const [loadingUser, setLoadingUser] = useState(true);
     const [activeAdminItem, setActiveAdminItem] = useState<AdminMenuOption | null>(null);
+    const [adminMenuData, setAdminMenuData] = useState<any>(null);
 
     useEffect(() => {
         const fetchCurrentUser = async () => {
@@ -123,6 +143,30 @@ export default function ChatPage() {
         };
 
         fetchCurrentUser();
+
+        const fetchAdminMenu = async () => {
+            try {
+                const response = await fetch(`${API_BASE_URL}/users/admin-menu`,
+                    {
+                        method: "GET",
+                        credentials: "include"
+                    }
+                );
+
+                if(!response.ok) {
+                    const errorData = await response.json();
+                    handleError(getErrorMessage(errorData))
+                    return;
+                }
+
+                const data = await response.json();
+                setAdminMenuData(data);
+            } catch {
+                handleError("Error fetching admin menu data.");
+            }
+        }
+
+        fetchAdminMenu();
     }, []);
     
     if (loadingUser) {
@@ -145,16 +189,14 @@ export default function ChatPage() {
 
             if(!response.ok) {
                 const errorData = await response.json();
-                setErrorMessage(errorData.detail);
-                setOpenSnackBar(true);
+                handleError(getErrorMessage(errorData));
                 return;
             }
 
             navigate("/login");
 
         } catch (error) {
-            setErrorMessage("Something went wrong.");
-            setOpenSnackBar(true);
+            handleError("Something went wrong.");
         }
     };
 
@@ -202,6 +244,7 @@ export default function ChatPage() {
         admin: (
             <AdminMenu 
                 activeButton={activeAdminItem}
+                adminMenuData={adminMenuData}
                 onSelectedAdminItem={handleAdminActiveItem}
                 onError={handleError}
             />
@@ -211,7 +254,12 @@ export default function ChatPage() {
     const roleChats = {
         student: <StudentChatComponent selectedCourse={selectedCourse}/>,
         professor: <ProfessorChatComponent selectedCourse={selectedCourse} />,
-        admin: <AdminChatComponent activeItem={activeAdminItem} />
+        admin: <AdminChatComponent 
+                    activeItem={activeAdminItem} 
+                    adminMenuData={adminMenuData}
+                    onError={handleError}
+                    onSuccess={handleSuccess}
+                />
     };
 
     return (
@@ -279,19 +327,19 @@ export default function ChatPage() {
         </div>
 
         <Snackbar
-            open={openSnackBar}
+            open={snackbar.open}
             autoHideDuration={4000}
-            onClose={() => setOpenSnackBar(false)}
+            onClose={() => setSnackbar((prev) => ({...prev, open: false}))}
             anchorOrigin={{
                 vertical: "top",
                 horizontal: "right"
             }}
         >
             <Alert
-                severity="error"
-                onClose={() => setOpenSnackBar(false)}
+                severity={snackbar.severity}
+                onClose={() => setSnackbar((prev) => ({...prev, open: false}))}
             >
-                {errorMessage}
+                {snackbar.message}
             </Alert>
         </Snackbar>
     </>

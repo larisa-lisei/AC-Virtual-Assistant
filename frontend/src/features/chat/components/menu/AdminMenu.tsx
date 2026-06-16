@@ -3,9 +3,11 @@ import './MenuComponent.css'
 import { Collapse, List, ListItemButton, ListItemText } from '@mui/material';
 import { ExpandLess, ExpandMore } from '@mui/icons-material';
 import type { AdminMenuOption } from '../../ChatPage';
+import { getErrorMessage } from '../../../../utils/error';
 
 interface AdminMenuProps {
     activeButton: AdminMenuOption | null;
+    adminMenuData: any;
     onSelectedAdminItem: (activeItem: AdminMenuOption) => void;
     onError: (message: string) => void;
 }
@@ -105,6 +107,24 @@ function buildMasterProgramNode(
     }
 }
 
+function buildProfessorProgramNode(
+    programKey: string,
+    programLabel: string,
+    programValue: string
+): MenuNode {
+    return {
+        id: `professors-${programKey}`,
+        label: programLabel,
+        value: {
+            role: "professor",
+            program: programValue,
+
+            title: "Professors",
+            subtitle: programLabel
+        }
+    }
+}
+
 function buildMenuData(data: any): MenuNode[] {
     const csit = data.programs.csit;
     const se = data.programs.se;
@@ -118,37 +138,16 @@ function buildMenuData(data: any): MenuNode[] {
                     id: "bachelor",
                     label: "Bachelor's degree",
                     children: [
-                        buildBachelorProgramNode(
-                            "csit",
-                            "CSIT",
-                            csit,
-                            data
-                        ),
-
-                        buildBachelorProgramNode(
-                            "se",
-                            "SE",
-                            se,
-                            data
-                        )
+                        buildBachelorProgramNode("csit", "CSIT", csit, data),
+                        buildBachelorProgramNode("se", "SE", se, data)
                     ]
                 },
                 {
                     id: "master",
                     label: "Master's degree",
                     children: [
-                        buildMasterProgramNode(
-                            "csit",
-                            "CSIT",
-                            csit,
-                            data
-                        ),
-                        buildMasterProgramNode(
-                            "se",
-                            "SE",
-                            se,
-                            data
-                        ),
+                        buildMasterProgramNode("csit", "CSIT", csit, data),
+                        buildMasterProgramNode("se", "SE", se, data)
                     ]
                 }
             ]
@@ -156,11 +155,10 @@ function buildMenuData(data: any): MenuNode[] {
         {
             id: "professors",
             label: "Professors",
-            value: {
-                role: "professor",
-
-                title: "Professors"
-            }
+            children: [
+                buildProfessorProgramNode("csit", "CSIT", csit),
+                buildProfessorProgramNode("se", "SE", se)
+            ]
         }
     ]
 }
@@ -209,56 +207,11 @@ function formatMenuLabel(label: React.ReactNode) {
 
 export default function AdminMenu({
     activeButton,
-    onSelectedAdminItem,
-    onError
+    adminMenuData,
+    onSelectedAdminItem
 } : AdminMenuProps) {
-    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     const [open, setOpen] = useState<Record<string, boolean>>({});
-    const [menuData, setMenuData] = useState<MenuNode[]>([]);
-
-    const cleanMessage = (message: string) => {
-        return message.replace(/^Value error,\s*/i, "");
-    };
-
-    const getErrorMessage = (errorData: any) => {
-        if(typeof errorData.detail === "string") {
-            return errorData.detail;
-        }
-
-        if(Array.isArray(errorData.detail)) {
-            return errorData.detail
-                .map((error: any) => cleanMessage(error.msg))
-                .join(" ");
-        }
-
-        return "Something went wrong.";
-    };
-
-    useEffect(() => {
-        const fetchAdminMenu = async () => {
-            try {
-                const response = await fetch(`${API_BASE_URL}/users/admin-menu`,
-                    {
-                        method: "GET",
-                        credentials: "include"
-                    }
-                );
-
-                if(!response.ok) {
-                    const errorData = await response.json();
-                    onError(getErrorMessage(errorData))
-                    return;
-                }
-
-                const data = await response.json();
-                setMenuData(buildMenuData(data));
-            } catch {
-                onError("Error fetching admin menu data.");
-            }
-        }
-
-        fetchAdminMenu();
-    }, []);
+    const menuData = adminMenuData ? buildMenuData(adminMenuData) : [];
 
     const handleClick = (id: string) => {
         setOpen(prev => ({

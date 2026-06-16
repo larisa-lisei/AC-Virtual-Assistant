@@ -75,7 +75,7 @@ def create_mock_users():
             "program": ProgramType.csit,
             "year": 4,
             "specialization": BachelorSpecialization.it,
-            "group": "342",
+            "group": "1311B",
             "password": password,
             "is_active": True
         },

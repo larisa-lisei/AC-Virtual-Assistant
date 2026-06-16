@@ -1,7 +1,13 @@
-from typing import Annotated, Literal, Optional, Union
-
+from typing import Optional
 from pydantic import BaseModel, EmailStr, Field, field_validator
-from .enums import UserRole, DegreeType, ProgramType
+from .enums import (
+    UserRole,
+    DegreeType, 
+    ProgramType,
+    BachelorSpecialization,
+    MasterSESpecialization,
+    MasterCSITSpecialization
+)
 
 class CreateStudentRequest(BaseModel):
     email: EmailStr
@@ -24,7 +30,7 @@ class CreateProfessorRequest(BaseModel):
     email: EmailStr
     program: ProgramType
 
-    existing_course_ids: list[str] = []
+    existing_course_ids: list[str] = Field(default_factory=list)
     new_course: CreateCourseRequest | None = None
     
 class CreateCourseRequest(BaseModel):
@@ -43,6 +49,7 @@ class StudentResponse(BaseModel):
     year: int
     specialization: Optional[str] = None 
     group: str
+    is_active: bool
 
 class ProfessorResponse(BaseModel):
     id: str 
@@ -50,16 +57,25 @@ class ProfessorResponse(BaseModel):
     role: UserRole
     program: str
     course_ids: list[str] = []
+    course_names: list[str] = []
+    is_active: bool
+
+class CourseResponse(BaseModel):
+    id: str
+    name: str = Field(..., min_length=1, max_length=100)
+    degree: DegreeType
+    program: ProgramType
+    year: int = Field(..., ge=1, le=4)
+    specialization: str | None = Field(None, min_length=1, max_length=100)
 
 class StudentFiltersParams(BaseModel):
-    degree: Optional[DegreeType] = None
-    program: Optional[str] = Field(None, min_length=1, max_length=100)
-    year: Optional[int] = Field(None, ge=1, le=4)
-    specialization: Optional[str] = Field(None, min_length=1, max_length=100)
-    group: Optional[str] = None
-    email: Optional[str] = None
+    degree: DegreeType | None = None
+    program: ProgramType | None = None
+    year: int | None = Field(None, ge=1, le=4)
+    specialization: BachelorSpecialization | MasterSESpecialization | MasterCSITSpecialization | None = None
+    search: str | None = None
 
-    @field_validator("program", "specialization", "group", "email")
+    @field_validator("search")
     @classmethod
     def no_blank_strings(cls, value: str) -> str | None:
         if value is None:
@@ -69,8 +85,9 @@ class StudentFiltersParams(BaseModel):
         return value
 
 class ProfessorFiltersParams(BaseModel):
-    program: Optional[str] = Field(None, min_length=1, max_length=100)
-    email: Optional[str] = None
+    program: ProgramType | None = None
+    email: str | None = None
+    search: str | None = None
 
     @field_validator("program", "email")
     @classmethod
@@ -82,8 +99,7 @@ class ProfessorFiltersParams(BaseModel):
         return value
 
 class UpdateStudentRequest(BaseModel):
-    email: Optional[EmailStr] = None
-    group: Optional[str]  = Field(None, min_length=1, max_length=10)
+    group: Optional[str]  = Field(None)
 
     @field_validator("group")
     @classmethod
@@ -92,20 +108,13 @@ class UpdateStudentRequest(BaseModel):
             return value
         if not value.strip():
             raise ValueError("Group must not be blank.")
+        if len(value) > 10:
+            raise ValueError("Group must not exceed 10 characters.")
         return value
+
     
 class UpdateProfessorRequest(BaseModel):
-    email: Optional[EmailStr] = None
-    program: Optional[str] = Field(None, min_length=1, max_length=100)
-
-    @field_validator("program")
-    @classmethod
-    def no_blank_program(cls, value: str | None) -> str | None: 
-        if value is None:
-            return value
-        if not value.strip():
-            raise ValueError("Program must not be blank.")
-        
-        return value
+    existing_course_ids: list[str] = Field(default_factory=list)
+    new_course: CreateCourseRequest | None = None
 
 
