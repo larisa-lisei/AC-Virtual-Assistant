@@ -22,7 +22,7 @@ export default function ChatComponent({ selectedCourse }: StudentChatComponentPr
     return (
         <div className="chat-component-container">
             <div className="course-title">
-                <h3>{selectedCourse.title}</h3>
+                <h3>{selectedCourse.name}</h3>
             </div>
             <div className="chat-description">
                 <h2>Ask me anything about this course!</h2>

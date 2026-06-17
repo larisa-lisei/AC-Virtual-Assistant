@@ -1,5 +1,5 @@
 from typing import Optional
-from pydantic import BaseModel, EmailStr, Field, field_validator
+from pydantic import BaseModel, EmailStr, Field, field_validator, model_validator
 from .enums import (
     UserRole,
     DegreeType, 
@@ -8,6 +8,8 @@ from .enums import (
     MasterSESpecialization,
     MasterCSITSpecialization
 )
+
+from features.courses.schemas import CreateCourseRequest
 
 class CreateStudentRequest(BaseModel):
     email: EmailStr
@@ -25,6 +27,11 @@ class CreateStudentRequest(BaseModel):
         if not value.strip():
             raise ValueError("Field must not be blank.")
         return value
+    
+    @model_validator(mode="after")
+    def validate_specialization(self):
+        validate_specialization_type(self.degree, self.program, self.specialization)
+        return self
 
 class CreateProfessorRequest(BaseModel):
     email: EmailStr
@@ -32,13 +39,6 @@ class CreateProfessorRequest(BaseModel):
 
     existing_course_ids: list[str] = Field(default_factory=list)
     new_course: CreateCourseRequest | None = None
-    
-class CreateCourseRequest(BaseModel):
-    name: str = Field(..., min_length=1, max_length=100)
-    degree: DegreeType
-    program: ProgramType
-    year: int = Field(..., ge=1, le=4)
-    specialization: str | None = Field(None, min_length=1, max_length=100)
 
 class StudentResponse(BaseModel):
     id: str
@@ -59,14 +59,6 @@ class ProfessorResponse(BaseModel):
     course_ids: list[str] = []
     course_names: list[str] = []
     is_active: bool
-
-class CourseResponse(BaseModel):
-    id: str
-    name: str = Field(..., min_length=1, max_length=100)
-    degree: DegreeType
-    program: ProgramType
-    year: int = Field(..., ge=1, le=4)
-    specialization: str | None = Field(None, min_length=1, max_length=100)
 
 class StudentFiltersParams(BaseModel):
     degree: DegreeType | None = None

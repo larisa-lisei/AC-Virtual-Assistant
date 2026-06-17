@@ -1,14 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 
-from features.auth.dependencies import get_current_user
-from features.auth.schemas import CurrentUser
+from features.courses.exceptions import CourseNotFoundError
+from features.courses.service import CourseService
+from features.courses.repository import CourseRepository
 
 from .schemas import (
     CreateStudentRequest, 
     StudentResponse,
     CreateProfessorRequest,
     ProfessorResponse,
-    CourseResponse,
     UpdateStudentRequest,
     UpdateProfessorRequest,
     StudentFiltersParams,
@@ -20,7 +20,6 @@ from .exceptions import (
     UserAlreadyExistsError,
     UserNotFoundError,
     InvalidIdError,
-    CourseNotFoundError,
     NoUpdateFieldsProvidedError,
     DuplicatedValueError
 )
@@ -35,7 +34,15 @@ from .enums import (
 router = APIRouter(prefix="/api/users")
 
 def get_user_service() -> UserService:
-    return UserService(UserRepository())
+    user_repository = UserRepository()
+
+    course_service = CourseService(
+        CourseRepository(),
+        user_repository
+    )
+
+    return UserService(user_repository, course_service)
+
 
 @router.post(
     "/add-account/student",
@@ -95,20 +102,6 @@ def get_professors(
     user_service: UserService = Depends(get_user_service)
 ):
     return user_service.get_professors(filters)
-
-@router.get(
-    "/courses",
-    response_model=list[CourseResponse]
-)
-def get_courses(
-    program: ProgramType | None = None,
-    current_user: CurrentUser = Depends(get_current_user),
-    user_service: UserService = Depends(get_user_service)
-):
-    return user_service.get_courses(
-        program=program,
-        current_user=current_user
-    )
     
 @router.delete(
     "/{user_id}",
@@ -129,27 +122,6 @@ def delete_user(
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail=f"Invalid user id: {e.id}"
-        )
-    
-@router.delete(
-    "/courses/{course_id}",
-    status_code=status.HTTP_204_NO_CONTENT
-)
-def delete_course(
-    course_id: str,
-    user_service: UserService = Depends(get_user_service)
-):
-    try:
-        user_service.delete_course(course_id)
-    except InvalidIdError as e:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
-            detail=f"Invalid course id: {e.id}"
-        )
-    except CourseNotFoundError as e:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Course with id {e.course_ids[0]} not found."
         )
     
 @router.patch(

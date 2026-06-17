@@ -27,7 +27,7 @@ export default function ProfessorChatComponent({selectedCourse}:ProfessorChatCom
     return (
             <div className="chat-component-container">
                 <div className="course-title professor">
-                    <h3>{selectedCourse.title}</h3>
+                    <h3>{selectedCourse.name}</h3>
                     <div className="switch-button">
                         <span>Professor</span>
                         <Switch 

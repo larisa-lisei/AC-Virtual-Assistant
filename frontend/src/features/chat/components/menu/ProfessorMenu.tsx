@@ -5,8 +5,8 @@ import type { Course } from '../../ChatPage'
 
 interface ProfessorMenuProps {
     courses: Course[];
-    selectedCourseId: number | null;
-    onSelectedCourse: (courseId: number) => void;
+    selectedCourseId: string | null;
+    onSelectedCourse: (courseId: string) => void;
 }
 
 export default function ProfessorMenu({
@@ -36,16 +36,20 @@ export default function ProfessorMenu({
                 </div>
                 <div className="menu-items professor-menu-courses">
                     <h3>Courses:</h3>
-                    {courses.map((course) => (
-                        <button 
-                            key={course.id}
-                            className={(course.id === selectedCourseId ? 'is-active' : '')}
-                            onClick={() => onSelectedCourse(course.id)}
-                            type="button"
-                        >
-                            {course.title}
-                        </button>
-                    ))}
+                    {courses.length === 0? (
+                        <p>No course assigned.</p>
+                    ): (
+                        courses.map((course) => (
+                            <button 
+                                key={course.id}
+                                className={(course.id === selectedCourseId ? 'is-active' : '')}
+                                onClick={() => onSelectedCourse(course.id)}
+                                type="button"
+                            >
+                                {course.name}
+                            </button>
+                        ))
+                    )}
                 </div>
             </nav>
         </aside>

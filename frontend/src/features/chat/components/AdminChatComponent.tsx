@@ -1,5 +1,5 @@
 import { Table, TableContainer, TableHead, TableRow, TableCell, TableBody, Button} from '@mui/material';
-import type { AdminMenuOption } from '../ChatPage';
+import type { AdminMenuOption, Course } from '../ChatPage';
 import './ChatComponent.css'
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
@@ -9,7 +9,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import { useState, useEffect } from 'react';
 import AdminDialog from './AdminDialog';
 import { getErrorMessage } from '../../../utils/error';
-import AccountForm, { emptyFormData, type AccountFormData, type Course} from "./AccountForm";
+import AccountForm, { emptyFormData, type AccountFormData} from "./AccountForm";
 
 type DialogType = 'addAccount' | 'deleteAccount' | 'editAccount' | null;
 
@@ -112,7 +112,7 @@ export default function AdminChatComponent({
         }
 
         try {
-            const response = await fetch(`${API_BASE_URL}/users/courses?program=${activeItem.program}`,
+            const response = await fetch(`${API_BASE_URL}/courses?program=${activeItem.program}`,
                 {
                     method: "GET",
                     credentials: "include"
@@ -397,7 +397,7 @@ export default function AdminChatComponent({
 
         try {
             const response = await fetch(
-                `${API_BASE_URL}/users/courses/${courseToDelete.id}`,
+                `${API_BASE_URL}/courses/${courseToDelete.id}`,
                 {
                     method: "DELETE",
                     credentials: "include"

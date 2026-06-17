@@ -24,8 +24,8 @@ export interface Message {
 }
 
 export interface User {
-    //id: number;
-    //name: string;
+    id: string;
+    email: string;
     role: UserRole;
 }
 
@@ -39,10 +39,14 @@ export interface Professor extends User {
     teachingCoursesIds: number[];
 }
 
-export interface Course {
-    id: number;
-    title: string;
-}
+export type Course = {
+    id: string;
+    name: string;
+    degree: string;
+    program: string;
+    year: number;
+    specialization?: string | null
+};
 
 export interface AdminMenuOption {
     role: 'student' | 'professor';
@@ -67,16 +71,11 @@ export default function ChatPage() {
         setAnchorEl(null);
     }
 
-    const courses: Course[] = [
-        { id: 1, title: 'Parallel and Distributed Algorithms' },
-        { id: 2, title: 'Artificial Intelligence' },
-        { id: 3, title: 'Web Application Development' },
-        { id: 4, title: 'Mobile Application Development' },
-        { id: 5, title: 'Service-Oriented Programming' }
-    ];
-
-    const [selectedCourseId, setSelectedCourseId] = useState<number | null>(null);
+    const [courses, setCourses] = useState<Course[]>([]);
+    const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
+    const [conversationId, setConversationId] = useState<string | null>(null);
     const [messages, setMessages] = useState<Message[]>([]);
+
     const[menuOpen, setMenuOpen] = useState(true);
 
     const [snackbar, setSnackbar] = useState<{
@@ -107,44 +106,40 @@ export default function ChatPage() {
 
     const navigate = useNavigate();
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-    //const [user, setUser] = useState<User>({role: 'student'});
-    //const [user, setUser] = useState<Professor>({role: 'professor', teachingCoursesIds: [1, 3, 5]});
     const [user, setUser] = useState<User | null>(null);
     const [loadingUser, setLoadingUser] = useState(true);
     const [activeAdminItem, setActiveAdminItem] = useState<AdminMenuOption | null>(null);
     const [adminMenuData, setAdminMenuData] = useState<any>(null);
 
-    useEffect(() => {
-        const fetchCurrentUser = async () => {
-            try {
-                const response = await fetch(
-                    `${API_BASE_URL}/auth/me`,
-                    {
-                        method: "GET",
-                        credentials: "include"
-                    }
-                );
+    const fetchCourses = async(role: string) => {
+        const endpoint =
+            role === "professor"
+                ? `${API_BASE_URL}/courses/teaching`
+                : `${API_BASE_URL}/courses/learning`;
 
-                if (!response.ok) {
-                    setUser(null);
-                    return;
-                }
+        try {
+            const response = await fetch(endpoint, {
+                method: "GET",
+                credentials: "include"
+            });
 
-                const data = await response.json();
-
-                setUser({
-                    role: data.role
-                });
-            } catch (error) {
-                setUser(null);
-            } finally {
-                setLoadingUser(false);
+            if(!response.ok) {
+                const errorData = await response.json();
+                handleError(getErrorMessage(errorData));
+                setCourses([]);
+                return;
             }
-        };
 
-        fetchCurrentUser();
+            const data: Course[] = await response.json();
+            setCourses(data);
+        } catch {
+            handleError("Something went wrong.");
+            setCourses([]);
+        }
+    }
 
-        const fetchAdminMenu = async () => {
+    useEffect(() => {
+         const fetchAdminMenu = async () => {
             try {
                 const response = await fetch(`${API_BASE_URL}/users/admin-menu`,
                     {
@@ -164,9 +159,51 @@ export default function ChatPage() {
             } catch {
                 handleError("Error fetching admin menu data.");
             }
-        }
+        };
 
-        fetchAdminMenu();
+        const fetchCurrentUser = async () => {
+            try {
+                const response = await fetch(
+                    `${API_BASE_URL}/auth/me`,
+                    {
+                        method: "GET",
+                        credentials: "include"
+                    }
+                );
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    handleError(getErrorMessage(errorData))
+                    setUser(null);
+                    return;
+                }
+
+                const data = await response.json();
+
+                setUser({
+                    id: data.id,
+                    email: data.email,
+                    role: data.role
+                });
+
+                if (data.role === "admin") {
+                    await fetchAdminMenu();
+                }
+
+                if(data.role === "professor" || data.role === "student") {
+                    await fetchCourses(data.role);
+                }
+
+            } catch (error) {
+                handleError("Something went wrong.")
+                setUser(null);
+            } finally {
+                setLoadingUser(false);
+            }
+        };
+
+        fetchCurrentUser();
+
     }, []);
     
     if (loadingUser) {
@@ -206,17 +243,17 @@ export default function ChatPage() {
         )
         : undefined;
 
-    const handleSelectedCourse = (courseId: number) => {
-        if(selectedCourseId !== courseId) {
-            setSelectedCourseId(courseId);
-            setMessages([]); // new chat when another course is selected
+    const handleSelectedCourse = (courseId: string) => {
+        if(selectedCourseId === courseId) {
+            return;
         }
-    }
 
-    const professorCourses =
-    user.role === 'professor'
-        ? courses //.filter(course => user.teachingCoursesIds.includes(course.id))
-        : [];
+        setSelectedCourseId(courseId);
+
+        //new chat for this course whenever different course is clicked
+        setMessages([]);
+        setConversationId(null);
+    }
 
     const handleAdminActiveItem = (clickedItem: AdminMenuOption) => {
         setActiveAdminItem(clickedItem);
@@ -236,7 +273,7 @@ export default function ChatPage() {
         ),
         professor: (
             <ProfessorMenu
-                courses={professorCourses}
+                courses={courses}
                 selectedCourseId={selectedCourseId}
                 onSelectedCourse={handleSelectedCourse}
             />
