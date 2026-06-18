@@ -5,6 +5,7 @@ from features.auth.schemas import CurrentUser
 from features.users.repository import UserRepository
 from features.users.schemas import ProgramType
 from features.users.exceptions import InvalidIdError
+from features.courses.exceptions import CourseAccessDeniedError
 
 from .repository import CourseRepository
 from .exceptions import CourseNotFoundError
@@ -28,6 +29,13 @@ class CourseService:
             year=course["year"],
             specialization=course.get("specialization")
         )
+
+    def get_course_by_id(self, course_id: str):
+        self._validate_id(course_id)
+        course = self.repository.find_course_by_id(course_id)
+        if not course:
+            raise CourseNotFoundError([course_id])
+        return course
 
     def get_courses_by_id(self, course_ids: list[str]) -> list[dict]:
         return self.repository.find_courses_by_id(course_ids)
@@ -83,6 +91,16 @@ class CourseService:
             self._to_course_response(course)
             for course in courses
         ]
+    
+    def ensure_professor_can_manage_course(self, current_user: CurrentUser, course_id: str):
+        self._validate_id(course_id)
+        professor = self.user_repository.find_by_id(current_user.id)
+        professor_course_ids = [
+            str(professor_course_id)
+            for professor_course_id in professor.get("course_ids", [])
+        ]
+        if course_id not in professor_course_ids:
+            raise CourseAccessDeniedError()
     
     def get_courses_student(self, current_user: CurrentUser) -> list[CourseResponse]:
         student = self.user_repository.find_by_id(current_user.id)

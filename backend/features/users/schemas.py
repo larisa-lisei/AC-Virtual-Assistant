@@ -9,7 +9,7 @@ from .enums import (
     MasterCSITSpecialization
 )
 
-from features.courses.schemas import CreateCourseRequest
+from features.courses.schemas import CreateCourseRequest, validate_specialization_type
 
 class CreateStudentRequest(BaseModel):
     email: EmailStr

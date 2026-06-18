@@ -276,6 +276,8 @@ export default function ChatPage() {
                 courses={courses}
                 selectedCourseId={selectedCourseId}
                 onSelectedCourse={handleSelectedCourse}
+                onError={handleError}
+                onSuccess={handleSuccess}
             />
         ),
         admin: (

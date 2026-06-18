@@ -1,7 +1,7 @@
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/material";
 import type { ReactNode } from "react";
 
-interface AdminDialogProps {
+interface BaseDialogProps {
     open: boolean;
     title: ReactNode;
     children?: ReactNode;
@@ -10,14 +10,14 @@ interface AdminDialogProps {
     confirmText?: string;
 }
 
-export default function AdminDialog({
+export default function BaseDialog({
     open,
     title,
     children,
     onClose,
     onConfirm,
     confirmText,
-}: AdminDialogProps) {
+}: BaseDialogProps) {
     return (
         <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
             <DialogTitle>{title}</DialogTitle>
@@ -29,7 +29,9 @@ export default function AdminDialog({
             )}
 
             <DialogActions>
-                <Button onClick={onConfirm} variant="contained">{confirmText}</Button>
+                {onConfirm && (
+                    <Button onClick={onConfirm} variant="contained">{confirmText}</Button>
+                )}
                 <Button onClick={onClose} variant="contained">Cancel</Button>
             </DialogActions>
         </Dialog>

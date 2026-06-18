@@ -15,12 +15,13 @@ from .schemas import (
 from .exceptions import (
     InvalidDocumentError,
     DocumentProcessingError,
-    NoRelevantDocsError
+    NoRelevantDocsError,
+    DocumentNotFoundError
 )
 from core.config import settings
 
 class RagService:
-    def __init__(self, rag_repository, llm_service, feedback_service):
+    def __init__(self, rag_repository, llm_service, feedback_service, course_service):
         self.repository = rag_repository
         self.llm_service = llm_service
         self.feedback_service = feedback_service
@@ -28,21 +29,31 @@ class RagService:
             chunk_size=500,
             chunk_overlap=75
         )
+        self.course_service = course_service
 
 
-    def upload_document(self, course_id: str, course_name: str, file: UploadFile) -> DocumentUploadResponse:
+    def upload_document(self, course_id: str, file: UploadFile, current_user) -> DocumentUploadResponse:
+        course = self.course_service.get_course_by_id(course_id)
+
+        self.course_service.ensure_professor_can_manage_course(
+            current_user = current_user,
+            course_id = course_id
+        )
+
         if not file.filename:
             raise InvalidDocumentError("Missing filename.")
         
-        if not file.filename.lower().endswith('.pdf'):
+        original_filename = os.path.basename(file.filename)
+        
+        if not original_filename.lower().endswith('.pdf'):
             raise InvalidDocumentError("Only PDF files are allowed.")
         
         os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
         os.makedirs(settings.CHROMA_PERSIST_DIR, exist_ok=True)
 
         # Save the uploaded file to disk with unique name
-        saved_filename = f"{uuid.uuid4()}_{file.filename}"
-        file_path = os.path.join(settings.UPLOAD_DIR, saved_filename)
+        stored_filename = f"{uuid.uuid4()}_{original_filename}"
+        file_path = os.path.join(settings.UPLOAD_DIR, stored_filename)
 
         try:
             with open(file_path, "wb") as buffer:
@@ -71,9 +82,15 @@ class RagService:
                 # get existing metadata and add more info
                 metadata = dict(doc.metadata or {})
                 metadata["course_id"] = course_id
-                metadata["course_name"] = course_name
+                metadata["course_name"] = course["name"]
                 metadata["doc_id"] = doc_id
-                metadata["filename"] = saved_filename
+
+                # shown in rag answers and source list
+                metadata["filename"] = original_filename
+
+                # used internally to delete physical file
+                metadata["stored_filename"] = stored_filename
+
                 metadata["chunk_index"] = index
 
                 if "page" in metadata and metadata["page"] is not None:
@@ -90,9 +107,8 @@ class RagService:
             self.repository.add_documents(final_documents, ids)
 
             return DocumentUploadResponse(
-                message="Document uploaded and indexed successfully.",
                 doc_id=doc_id,
-                filename=saved_filename,
+                filename=original_filename,
                 chunks_indexed=len(final_documents)
             )
         
@@ -103,16 +119,64 @@ class RagService:
         finally:
             file.file.close()
 
+    def get_uploaded_documents(self, course_id: str, current_user) -> list[DocumentUploadResponse]:
+        self.course_service.get_course_by_id(course_id)
+
+        self.course_service.ensure_professor_can_manage_course(
+            current_user=current_user,
+            course_id=course_id
+        )
+
+        documents = self.repository.get_uploaded_documents_by_course(course_id)
+
+        return [
+            DocumentUploadResponse(
+                doc_id=document["doc_id"],
+                filename=document["filename"],
+                chunks_indexed=document["chunks_indexed"]
+            )
+            for document in documents
+        ]
+    
+    def delete_document(self, course_id, doc_id, current_user):
+        self.course_service.get_course_by_id(course_id)
+
+        self.course_service.ensure_professor_can_manage_course(
+            current_user=current_user,
+            course_id=course_id
+        )
+
+        deleted_metadatas = self.repository.delete_document_by_course(course_id, doc_id)
+
+        if not deleted_metadatas:
+            raise DocumentNotFoundError(doc_id)
+        
+        # extract real filename stored on disk to delete physical file
+        stored_filenames = {
+            metadata.get("stored_filename")
+            for metadata in deleted_metadatas
+            if metadata and metadata.get("stored_filename")
+        }
+
+        for stored_filename in stored_filenames:
+            file_path = os.path.join(settings.UPLOAD_DIR, os.path.basename(stored_filename))
+            # delete physical file 
+            if os.path.exists(file_path):
+                os.remove(file_path)
+
     def answer_question(
         self,
         course_id: str,
-        course_name: str,
         question: str,
     ) -> ChatResponse:
+        course = self.course_service.get_course_by_id(course_id)
+        
         retrieved_docs = self._retrieve_relevant_documents(
             course_id=course_id,
             question=question,
         )
+
+        course_name = course["name"]
 
         if not retrieved_docs:
             self.feedback_service.log_student_question(

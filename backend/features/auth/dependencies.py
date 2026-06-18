@@ -1,4 +1,4 @@
-from fastapi import Depends
+from fastapi import Depends, Request
 from jose import JWTError
 from fastapi import HTTPException, status
 from fastapi.security import APIKeyCookie
@@ -65,3 +65,18 @@ def require_role(*roles: str):
             )
         return current_user
     return guard
+
+def require_same_user(path_param):
+    def guard(
+        request: Request,
+        current_user: CurrentUser = Depends(get_current_user)
+    ) -> CurrentUser:
+        target_id = request.path_params.get(path_param)
+        if current_user.id != target_id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You can only access your own resources."
+            )
+        return current_user
+    return guard
+        

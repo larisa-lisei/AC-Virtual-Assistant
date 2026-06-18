@@ -147,8 +147,9 @@
 }
 
 .admin-account-email {
-    color: black;
+    /*color: black;*/
     text-wrap: nowrap;
+    font-style: italic;
 }
 
 @media(max-width: 810px) {

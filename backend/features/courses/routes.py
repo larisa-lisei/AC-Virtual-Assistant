@@ -2,23 +2,15 @@ from fastapi import APIRouter, Depends, HTTPException, status
 
 from features.auth.dependencies import require_role
 from features.auth.schemas import CurrentUser
-from features.users.repository import UserRepository
 from features.users.schemas import ProgramType
 from features.users.exceptions import InvalidIdError
 
-from .repository import CourseRepository
+from .dependencies import get_course_service
 from .service import CourseService
 from .schemas import CourseResponse
 from .exceptions import CourseNotFoundError
 
 router = APIRouter(prefix="/api/courses")
-
-
-def get_course_service() -> CourseService:
-    return CourseService(
-        CourseRepository(),
-        UserRepository()
-    )
 
 @router.get(
     "",

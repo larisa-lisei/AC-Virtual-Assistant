@@ -7,7 +7,7 @@ import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
 import SearchIcon from '@mui/icons-material/Search';
 import { useState, useEffect } from 'react';
-import AdminDialog from './AdminDialog';
+import BaseDialog from './BaseDialog';
 import { getErrorMessage } from '../../../utils/error';
 import AccountForm, { emptyFormData, type AccountFormData} from "./AccountForm";
 
@@ -548,7 +548,7 @@ export default function AdminChatComponent({
             </div>
 
             {/* Add account dialog */}
-            <AdminDialog
+            <BaseDialog
                 open={openDialog === 'addAccount'}
                 title="Add New Account"
                 onClose={closeDialog}
@@ -564,10 +564,10 @@ export default function AdminChatComponent({
                     activeItem={activeItem} 
                     deleteCourse={openDeleteCourse}   
                 />
-            </AdminDialog>
+            </BaseDialog>
 
             {/* Delete account dialog */}
-            <AdminDialog
+            <BaseDialog
                 open={openDialog === 'deleteAccount'}
                 title={
                     <>
@@ -581,10 +581,10 @@ export default function AdminChatComponent({
                 onConfirm={handleDeleteAccount}
                 confirmText='Delete account'
             >
-            </AdminDialog>
+            </BaseDialog>
 
             {/* Edit account dialog */}
-            <AdminDialog
+            <BaseDialog
                 open={openDialog === 'editAccount' }
                 title='Edit account'
                 onClose={closeDialog}
@@ -600,10 +600,10 @@ export default function AdminChatComponent({
                     activeItem={activeItem} 
                     deleteCourse={openDeleteCourse}
                 />
-            </AdminDialog>
+            </BaseDialog>
 
             {/* Delete Course Dialog */}
-            <AdminDialog
+            <BaseDialog
                 open={courseToDelete !== null}
                 title={
                     <>
@@ -621,7 +621,7 @@ export default function AdminChatComponent({
                     This course will be deleted permanently and removed from every professor
                     account linked to it!
                 </h3>
-            </AdminDialog>
+            </BaseDialog>
         </div>
     )
 }

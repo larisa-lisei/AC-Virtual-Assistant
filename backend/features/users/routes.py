@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from features.courses.exceptions import CourseNotFoundError
+from features.courses.dependencies import get_course_service
 from features.courses.service import CourseService
-from features.courses.repository import CourseRepository
 
 from .schemas import (
     CreateStudentRequest, 
@@ -33,16 +33,10 @@ from .enums import (
 
 router = APIRouter(prefix="/api/users")
 
-def get_user_service() -> UserService:
-    user_repository = UserRepository()
-
-    course_service = CourseService(
-        CourseRepository(),
-        user_repository
-    )
-
-    return UserService(user_repository, course_service)
-
+def get_user_service(
+    course_service: CourseService = Depends(get_course_service)
+) -> UserService:
+    return UserService(UserRepository(), course_service)
 
 @router.post(
     "/add-account/student",

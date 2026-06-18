@@ -18,6 +18,9 @@ class CourseRepository:
         result = self.courses_collection.insert_one(course_data)
         return self.courses_collection.find_one({"_id": result.inserted_id})
     
+    def find_course_by_id(self, course_id: str):
+        return self.courses_collection.find_one({"_id": ObjectId(course_id)})
+    
     def find_courses_by_id(self, course_ids: list[str]):
         if not course_ids:
             return []
