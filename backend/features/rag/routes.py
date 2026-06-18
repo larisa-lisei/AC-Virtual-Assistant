@@ -136,20 +136,36 @@ def delete_uploaded_document(
         )
 
 @router.post(
-    "/ask",
+    "/{course_id}/ask",
     response_model=ChatResponse,
     status_code=status.HTTP_200_OK
 )
 def ask_question(
+    course_id: str,
     request: ChatRequest,
-    current_user: CurrentUser = Depends(get_current_user),
+    current_user: CurrentUser = Depends(require_role(UserRole.student.value)),
     rag_service: RagService = Depends(get_rag_service)
 ):
     try:
         return rag_service.answer_question(
-            request.course_id,
-            request.course_name,
-            request.question,
+            course_id=course_id,
+            question=request.question,
+            current_user=current_user
+        )
+    except InvalidIdError as e:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail=f"Invalid course id: {e.id}"
+        )
+    except CourseNotFoundError as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Course {e.course_ids} not found."
+        )
+    except CourseAccessDeniedError as e:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=str(e)
         )
     except NoRelevantDocsError as exc:
         raise HTTPException(

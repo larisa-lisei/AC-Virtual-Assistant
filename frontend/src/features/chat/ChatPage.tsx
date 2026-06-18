@@ -73,7 +73,8 @@ export default function ChatPage() {
 
     const [courses, setCourses] = useState<Course[]>([]);
     const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
-    const [conversationId, setConversationId] = useState<string | null>(null);
+    //const [conversationId, setConversationId] = useState<string | null>(null);
+
     const [messages, setMessages] = useState<Message[]>([]);
 
     const[menuOpen, setMenuOpen] = useState(true);
@@ -252,7 +253,7 @@ export default function ChatPage() {
 
         //new chat for this course whenever different course is clicked
         setMessages([]);
-        setConversationId(null);
+        //setConversationId(null);
     }
 
     const handleAdminActiveItem = (clickedItem: AdminMenuOption) => {

@@ -7,6 +7,9 @@ from langchain_community.document_loaders import PyPDFLoader
 from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
+from features.users.schemas import UserRole
+from features.courses.exceptions import CourseAccessDeniedError
+
 from .schemas import (
     DocumentUploadResponse,
     ChatResponse,
@@ -168,15 +171,22 @@ class RagService:
         self,
         course_id: str,
         question: str,
+        current_user
     ) -> ChatResponse:
-        course = self.course_service.get_course_by_id(course_id)
+        
+        if current_user.role == UserRole.student.value:
+            course = self.course_service.ensure_student_can_access_course(current_user, course_id)
+        elif current_user.role == UserRole.professor.value:
+            course = self.course_service.ensure_professor_can_access_course(current_user, course_id)
+        else:
+            raise CourseAccessDeniedError()
+
+        course_name = course["name"]
         
         retrieved_docs = self._retrieve_relevant_documents(
             course_id=course_id,
             question=question,
         )
-
-        course_name = course["name"]
 
         if not retrieved_docs:
             self.feedback_service.log_student_question(
@@ -254,8 +264,9 @@ Rules:
 - Do not invent information.
 - Explain clearly and simply, in a structured way suitable for students.
 - Break down complex ideas step by step when helpful.
-- When relevant, mention the source document and page.
 - If a source chunk is clearly unrelated to the question, ignore it entirely.
+- When you use information from a context chunk, mention the document name and page naturally, for example: (AlPD_cursuri.pdf, p. 25).
+- Do not copy raw context labels such as "Context chunk", "Document:", "Page:", or "[Source ...]" into the answer.
 - Always respond in the same language as the student's question.
 
 Context:

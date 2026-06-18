@@ -1,9 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import './MenuComponent.css'
 import { Collapse, List, ListItemButton, ListItemText } from '@mui/material';
 import { ExpandLess, ExpandMore } from '@mui/icons-material';
 import type { AdminMenuOption } from '../../ChatPage';
-import { getErrorMessage } from '../../../../utils/error';
 
 interface AdminMenuProps {
     activeButton: AdminMenuOption | null;

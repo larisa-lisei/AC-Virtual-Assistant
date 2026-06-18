@@ -30,7 +30,7 @@ class CreateStudentRequest(BaseModel):
     
     @model_validator(mode="after")
     def validate_specialization(self):
-        validate_specialization_type(self.degree, self.program, self.specialization)
+        validate_specialization_type(self.degree, self.program, self.year, self.specialization)
         return self
 
 class CreateProfessorRequest(BaseModel):

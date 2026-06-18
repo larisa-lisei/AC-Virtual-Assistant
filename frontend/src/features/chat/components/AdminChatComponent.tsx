@@ -203,6 +203,7 @@ export default function AdminChatComponent({
                 return;
             }
 
+            onSuccess("Student account added successfully.");
             closeDialog();
             //refresh table
             await fetchAccounts();
@@ -245,6 +246,7 @@ export default function AdminChatComponent({
                 return;
             }
 
+            onSuccess("Professor account added successfully.");
             closeDialog();
             await fetchAccounts();
             await fetchCourses();

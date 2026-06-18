@@ -101,6 +101,21 @@ class CourseService:
         ]
         if course_id not in professor_course_ids:
             raise CourseAccessDeniedError()
+        
+    def ensure_student_can_access_course(self, current_user: CurrentUser, course_id: str):
+        course = self.get_course_by_id(course_id)
+        student = self.user_repository.find_by_id(current_user.id)
+
+        if student["degree"] != course["degree"] or student["program"] != course["program"] or student["year"] != course["year"]:
+            raise CourseAccessDeniedError()
+        
+        course_specialization = course.get("specialization")
+        student_specialization = student.get("specialization")
+
+        if course_specialization and course_specialization != student_specialization:
+            raise CourseAccessDeniedError()
+        
+        return course
     
     def get_courses_student(self, current_user: CurrentUser) -> list[CourseResponse]:
         student = self.user_repository.find_by_id(current_user.id)

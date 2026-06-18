@@ -8,7 +8,6 @@ class DocumentUploadResponse(BaseModel):
     chunks_indexed: int = Field(..., ge=1)
 
 class ChatRequest(BaseModel):
-    course_id: str = Field(..., min_length=1)
     question: str = Field(..., min_length=1, max_length=2000)
 
 class SourceChunk(BaseModel):
