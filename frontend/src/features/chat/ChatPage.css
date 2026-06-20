@@ -15,13 +15,17 @@
     margin: 0;
 }
 
-.hello-username {
+.hello-role {
+    width: max-content;
+    margin-left: 10px;
+}
+
+.hello-username h2 {
     display: flex;
-    gap: 5px;
     align-items: center;
 }
 
-.hello-username button {
+.hello-username h2 button {
     background: none;
     padding: 0;
     border: none;
@@ -137,7 +141,11 @@
     }
 
     .menu-close {
-        white-space: normal;
+        white-space: nowrap;
+    }
+
+    .chat-message {
+        white-space: wrap;
     }
 }
 

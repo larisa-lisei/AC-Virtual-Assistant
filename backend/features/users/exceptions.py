@@ -22,10 +22,6 @@ class UserNotActiveError(Exception):
     def __str__(self):
         return "Account is not activated."
     
-class InvalidIdError(Exception):
-    def __init__(self, id: str):
-        self.id = id
-
 class NoUpdateFieldsProvidedError(Exception):
     def __str__(self):
         return "No fields provided for update."

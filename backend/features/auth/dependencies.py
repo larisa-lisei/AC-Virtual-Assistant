@@ -78,5 +78,4 @@ def require_same_user(path_param):
                 detail="You can only access your own resources."
             )
         return current_user
-    return guard
-        
+    return guard  

@@ -25,6 +25,7 @@ class RagRepository:
         )
 
         return [(doc, score) for doc, score in results if score <= score_threshold]
+
     
     def get_uploaded_documents_by_course(self, course_id: str) -> list[dict]:
         result = self.vector_store.get(

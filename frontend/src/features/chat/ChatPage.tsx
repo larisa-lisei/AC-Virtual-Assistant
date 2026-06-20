@@ -14,29 +14,12 @@ import AdminChatComponent from './components/AdminChatComponent';
 import { Menu, MenuItem, Snackbar, Alert } from '@mui/material';
 import { getErrorMessage } from '../../utils/error';
 
-type MessageRole = 'user' | 'assistant';
 type UserRole = 'student' | 'professor' | 'admin';
-
-export interface Message {
-    id: string;
-    role: MessageRole;
-    text: string;
-}
 
 export interface User {
     id: string;
     email: string;
     role: UserRole;
-}
-
-export interface Student extends User {
-    role: 'student';
-    enrolledCoursesIds: number[];
-}
-
-export interface Professor extends User {
-    role: 'professor';
-    teachingCoursesIds: number[];
 }
 
 export type Course = {
@@ -61,6 +44,8 @@ export interface AdminMenuOption {
     subtitle?:string;
 }
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '';
+
 export default function ChatPage() {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const logoutMenuOpen = Boolean(anchorEl);
@@ -73,9 +58,6 @@ export default function ChatPage() {
 
     const [courses, setCourses] = useState<Course[]>([]);
     const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
-    //const [conversationId, setConversationId] = useState<string | null>(null);
-
-    const [messages, setMessages] = useState<Message[]>([]);
 
     const[menuOpen, setMenuOpen] = useState(true);
 
@@ -106,7 +88,6 @@ export default function ChatPage() {
     };
 
     const navigate = useNavigate();
-    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     const [user, setUser] = useState<User | null>(null);
     const [loadingUser, setLoadingUser] = useState(true);
     const [activeAdminItem, setActiveAdminItem] = useState<AdminMenuOption | null>(null);
@@ -195,7 +176,7 @@ export default function ChatPage() {
                     await fetchCourses(data.role);
                 }
 
-            } catch (error) {
+            } catch {
                 handleError("Something went wrong.")
                 setUser(null);
             } finally {
@@ -233,7 +214,7 @@ export default function ChatPage() {
 
             navigate("/login");
 
-        } catch (error) {
+        } catch {
             handleError("Something went wrong.");
         }
     };
@@ -250,10 +231,6 @@ export default function ChatPage() {
         }
 
         setSelectedCourseId(courseId);
-
-        //new chat for this course whenever different course is clicked
-        setMessages([]);
-        //setConversationId(null);
     }
 
     const handleAdminActiveItem = (clickedItem: AdminMenuOption) => {
@@ -308,13 +285,17 @@ export default function ChatPage() {
             <div className="chat-title">
                 <h2>AC Virtual Assistant</h2>
                 <div className="hello-username">
-                    <h2>Hello, {user.role} </h2>
-
-                    <button
+                    <h2>
+                        <div className='hello-role'>
+                            Hello, {user.role} 
+                        </div>
+                        <button
                         type="button"
                         onClick={handleLogoutMenuClick}>
-                        <PersonPinIcon sx={{ fontSize: 40 }} className = "profile-icon"/>
-                    </button>
+                            <PersonPinIcon sx={{ fontSize: 40 }} className = "profile-icon"/>
+                        </button>
+
+                    </h2>
 
                     <Menu
                         anchorEl={anchorEl}

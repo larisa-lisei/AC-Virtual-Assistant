@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from features.auth.dependencies import require_role
 from features.auth.schemas import CurrentUser
 from features.users.schemas import ProgramType
-from features.users.exceptions import InvalidIdError
+from db.exceptions import InvalidIdError
 
 from .dependencies import get_course_service
 from .service import CourseService

@@ -3,6 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from features.courses.exceptions import CourseNotFoundError
 from features.courses.dependencies import get_course_service
 from features.courses.service import CourseService
+from db.exceptions import InvalidIdError
 
 from .schemas import (
     CreateStudentRequest, 
@@ -19,7 +20,6 @@ from .repository import UserRepository
 from .exceptions import (
     UserAlreadyExistsError,
     UserNotFoundError,
-    InvalidIdError,
     NoUpdateFieldsProvidedError,
     DuplicatedValueError
 )

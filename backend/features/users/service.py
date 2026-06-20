@@ -1,5 +1,4 @@
-from bson import ObjectId
-from bson.errors import InvalidId
+from db.utils import validate_id
 
 from .schemas import (
     CreateStudentRequest, 
@@ -15,7 +14,6 @@ from .schemas import (
 from .exceptions import (
     UserAlreadyExistsError,
     UserNotFoundError,
-    InvalidIdError,
     NoUpdateFieldsProvidedError
 )
 
@@ -107,21 +105,15 @@ class UserService:
         return [self._to_professor_response(professor) for professor in professors]
 
     def delete_user(self, user_id: str):
-        self._validate_id(user_id)
+        validate_id(user_id)
         user = self.repository.find_by_id(user_id)
         if not user:
             raise UserNotFoundError(user_id)
         
         self.repository.delete_user(user_id)
-        
-    def _validate_id(self, id: str):
-        try:
-            ObjectId(id)
-        except InvalidId:
-            raise InvalidIdError(id)
 
     def update_student(self, user_id: str, user_data: UpdateStudentRequest) -> StudentResponse:
-        self._validate_id(user_id)
+        validate_id(user_id)
         student = self.repository.find_by_id(user_id)
 
         if not student:
@@ -139,7 +131,7 @@ class UserService:
         return self._to_student_response(updated_student)
     
     def update_professor(self, user_id: str, user_data: UpdateProfessorRequest) -> ProfessorResponse:
-        self._validate_id(user_id)
+        validate_id(user_id)
         professor = self.repository.find_by_id(user_id)
 
         if not professor:

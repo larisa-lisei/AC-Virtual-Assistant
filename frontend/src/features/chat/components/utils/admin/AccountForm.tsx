@@ -1,8 +1,8 @@
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import {Autocomplete, Button, MenuItem, Stack, TextField, Box, IconButton} from "@mui/material"
-import type {AdminMenuOption} from "../ChatPage"
-import "./ChatComponent.css"
-import type { Course } from '../ChatPage'
+import type {AdminMenuOption} from "../../../ChatPage"
+import "../../ChatComponent.css"
+import type { Course } from '../../../ChatPage'
 
 export type AccountFormData = {
     mode: 'add' | 'edit';

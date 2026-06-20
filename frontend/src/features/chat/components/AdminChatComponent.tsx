@@ -7,9 +7,9 @@ import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
 import SearchIcon from '@mui/icons-material/Search';
 import { useState, useEffect } from 'react';
-import BaseDialog from './BaseDialog';
+import BaseDialog from './utils/admin/BaseDialog';
 import { getErrorMessage } from '../../../utils/error';
-import AccountForm, { emptyFormData, type AccountFormData} from "./AccountForm";
+import AccountForm, { emptyFormData, type AccountFormData} from "./utils/admin/AccountForm";
 
 type DialogType = 'addAccount' | 'deleteAccount' | 'editAccount' | null;
 

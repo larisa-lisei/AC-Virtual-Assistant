@@ -5,9 +5,11 @@ class Settings(BaseSettings):
     CHROMA_PERSIST_DIR: str = "storage/chroma"
     UPLOAD_DIR: str = "storage/uploads"
     CHROMA_COLLECTION_NAME: str = "documents"
-    DEFAULT_RELEVANT_CHUNKS: int = 4
-    EMBEDDING_MODEL_NAME: str = "sentence-transformers/all-MiniLM-L6-v2"
-    RAG_SCORE_THRESHOLD: float = 1.0
+    DEFAULT_RELEVANT_CHUNKS: int = 15
+    EMBEDDING_MODEL_NAME: str = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+    RAG_SCORE_THRESHOLD: float = 1.9
+
+    HISTORY_LIMIT: int = 15
 
     GEMINI_API_KEY: str = ""
     GEMINI_MODEL: str = "gemini-1.5-flash"

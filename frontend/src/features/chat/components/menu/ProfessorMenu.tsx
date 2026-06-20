@@ -4,7 +4,7 @@ import { Button, CircularProgress, List, ListItem, ListItemText } from '@mui/mat
 import Checkbox from '@mui/material/Checkbox';
 import type { Course } from '../../ChatPage'
 import { getErrorMessage } from '../../../../utils/error';
-import BaseDialog from '../BaseDialog';
+import BaseDialog from '../utils/admin/BaseDialog';
 
 interface ProfessorMenuProps {
     courses: Course[];

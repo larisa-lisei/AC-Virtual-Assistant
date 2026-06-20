@@ -1,10 +1,8 @@
-from bson import ObjectId
-from bson.errors import InvalidId
+from db.utils import validate_id
 
 from features.auth.schemas import CurrentUser
 from features.users.repository import UserRepository
 from features.users.schemas import ProgramType
-from features.users.exceptions import InvalidIdError
 from features.courses.exceptions import CourseAccessDeniedError
 
 from .repository import CourseRepository
@@ -31,7 +29,7 @@ class CourseService:
         )
 
     def get_course_by_id(self, course_id: str):
-        self._validate_id(course_id)
+        validate_id(course_id)
         course = self.repository.find_course_by_id(course_id)
         if not course:
             raise CourseNotFoundError([course_id])
@@ -93,7 +91,12 @@ class CourseService:
         ]
     
     def ensure_professor_can_manage_course(self, current_user: CurrentUser, course_id: str):
-        self._validate_id(course_id)
+        validate_id(course_id)
+        course = self.get_course_by_id(course_id)
+
+        if not course:
+            raise CourseNotFoundError([course_id])
+        
         professor = self.user_repository.find_by_id(current_user.id)
         professor_course_ids = [
             str(professor_course_id)
@@ -101,9 +104,14 @@ class CourseService:
         ]
         if course_id not in professor_course_ids:
             raise CourseAccessDeniedError()
+        return course
         
     def ensure_student_can_access_course(self, current_user: CurrentUser, course_id: str):
+        validate_id(course_id)
         course = self.get_course_by_id(course_id)
+        if not course:
+            raise CourseNotFoundError([course_id])
+
         student = self.user_repository.find_by_id(current_user.id)
 
         if student["degree"] != course["degree"] or student["program"] != course["program"] or student["year"] != course["year"]:
@@ -132,14 +140,8 @@ class CourseService:
             for course in courses
         ]
     
-    def _validate_id(self, id: str):
-        try:
-            ObjectId(id)
-        except InvalidId:
-            raise InvalidIdError(id)
-    
     def delete_course(self, course_id: str):
-        self._validate_id(course_id)
+        validate_id(course_id)
         course = self.repository.find_courses_by_id([course_id])
         if not course:
             raise CourseNotFoundError([course_id])

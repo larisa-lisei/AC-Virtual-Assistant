@@ -1,6 +1,7 @@
 import os
 import shutil
 import uuid
+from core.config import settings
 
 from fastapi import UploadFile
 from langchain_community.document_loaders import PyPDFLoader
@@ -9,6 +10,8 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 from features.users.schemas import UserRole
 from features.courses.exceptions import CourseAccessDeniedError
+from features.conversations.enums import ConvRole, ConvType
+from features.conversations.schemas import ConversationHistoryResponse
 
 from .schemas import (
     DocumentUploadResponse,
@@ -18,13 +21,12 @@ from .schemas import (
 from .exceptions import (
     InvalidDocumentError,
     DocumentProcessingError,
-    NoRelevantDocsError,
     DocumentNotFoundError
+
 )
-from core.config import settings
 
 class RagService:
-    def __init__(self, rag_repository, llm_service, feedback_service, course_service):
+    def __init__(self, rag_repository, llm_service, feedback_service, course_service, conversation_service):
         self.repository = rag_repository
         self.llm_service = llm_service
         self.feedback_service = feedback_service
@@ -33,6 +35,7 @@ class RagService:
             chunk_overlap=75
         )
         self.course_service = course_service
+        self.conv_service = conversation_service
 
 
     def upload_document(self, course_id: str, file: UploadFile, current_user) -> DocumentUploadResponse:
@@ -167,52 +170,77 @@ class RagService:
             if os.path.exists(file_path):
                 os.remove(file_path)
 
+    def _get_course_for_current_user(self, current_user, course_id):
+        if current_user.role == UserRole.student.value:
+            course = self.course_service.ensure_student_can_access_course(current_user, course_id)
+        elif current_user.role == UserRole.professor.value:
+            course = self.course_service.ensure_professor_can_manage_course(current_user, course_id)
+        else:
+            raise CourseAccessDeniedError()
+        return course
+
     def answer_question(
         self,
         course_id: str,
         question: str,
-        current_user
+        current_user,
+        conversation_id: str | None
     ) -> ChatResponse:
-        
-        if current_user.role == UserRole.student.value:
-            course = self.course_service.ensure_student_can_access_course(current_user, course_id)
-        elif current_user.role == UserRole.professor.value:
-            course = self.course_service.ensure_professor_can_access_course(current_user, course_id)
-        else:
-            raise CourseAccessDeniedError()
+        course = self._get_course_for_current_user(current_user, course_id)
 
         course_name = course["name"]
+
+        conversation_id = self.conv_service.get_or_create_conversation(
+            conversation_id=conversation_id,
+            user_id=current_user.id,
+            course_id=course_id,
+            course_name=course_name,
+            conversation_type=ConvType.course_assistant
+        )
+
+        recent_messages = self.conv_service.get_recent_messages(conversation_id, limit=settings.HISTORY_LIMIT)
+
+        retrieval_query = self._build_retrieval_query(question, recent_messages)
         
         retrieved_docs = self._retrieve_relevant_documents(
             course_id=course_id,
-            question=question,
+            question=retrieval_query,
         )
 
         if not retrieved_docs:
-            self.feedback_service.log_student_question(
-                course_id,
-                course_name,
-                question,
-                answer_status="no_relevant_docs",
-                answer=None
+            answer = "No relevant course materials were found."
+
+            # save messages for history
+            self.conv_service.save_exchange(
+                conversation_id=conversation_id,
+                user_message=question,
+                assistant_message=answer
             )
-            raise NoRelevantDocsError()
+
+            # only student messages are used for feedback analysis
+            if current_user.role == UserRole.student.value:
+                self.feedback_service.log_student_question(
+                    course_id,
+                    course_name,
+                    question,
+                    answer_status="no_relevant_docs",
+                    answer=None
+                )
+           
+            return ChatResponse(
+               conversation_id=conversation_id,
+               answer=answer,
+               sources=[]
+           )
 
         prompt = self._build_prompt(
             course_name=course_name,
             question=question,
-            retrieved_docs=retrieved_docs
+            retrieved_docs=retrieved_docs,
+            recent_messages=recent_messages
         )
 
         answer = self.llm_service.generate_answer(prompt)
-
-        self.feedback_service.log_student_question(
-            course_id,
-            course_name,
-            question,
-            answer_status="answered",
-            answer=answer
-        )
 
         sources = [
             SourceChunk(
@@ -224,11 +252,67 @@ class RagService:
             for doc, _ in retrieved_docs
         ]
 
+        # only store sources in history for professors
+        history_sources = None
+
+        if current_user.role == UserRole.professor.value:
+            history_sources = [
+                {
+                    "filename": source.filename,
+                    "page": source.page,
+                    "chunk_index": source.chunk_index,
+                    "content": source.content
+                }
+                for source in sources
+            ]
+
+        self.conv_service.save_exchange(
+            conversation_id=conversation_id,
+            user_message=question,
+            assistant_message=answer,
+            sources=history_sources
+        )
+
+        # only student messages are use for feedback analysis
+        if current_user.role == UserRole.student.value:
+            self.feedback_service.log_student_question(
+                course_id,
+                course_name,
+                question,
+                answer_status="answered",
+                answer=answer
+            )
+
+        # only professors receive the extracted fragments sources
+        visible_sources = (
+            sources
+            if current_user.role == UserRole.professor.value
+            else []
+        )
+
         return ChatResponse(
+            conversation_id=conversation_id,
             answer=answer,
-            sources=sources
+            sources=visible_sources
         )
     
+    def get_active_conversation(self, course_id, current_user) -> ConversationHistoryResponse:
+        self._get_course_for_current_user(current_user, course_id)
+        include_sources = current_user.role == UserRole.professor.value
+        return self.conv_service.get_active_conversation(
+            user_id=current_user.id,
+            course_id=course_id,
+            conversation_type=ConvType.course_assistant,
+            include_sources=include_sources
+        )
+    
+    def delete_active_conversation(self, course_id, current_user):
+        self._get_course_for_current_user(current_user, course_id)
+        self.conv_service.delete_active_conversation(
+            user_id=current_user.id,
+            course_id=course_id,
+            conversation_type=ConvType.course_assistant
+        )
 
     def _retrieve_relevant_documents(
         self,
@@ -242,14 +326,41 @@ class RagService:
             score_threshold=settings.RAG_SCORE_THRESHOLD
         )
     
+    def _build_retrieval_query(self, question, recent_messages: list[dict]):
+        if not recent_messages:
+            return question
+        history = self._format_conversation_history(recent_messages)
+
+        return f"""
+    Conversation history:
+    {history}
+
+    Current question:
+    {question}
+    """.strip()
+
+    def _format_conversation_history(self, messages: list[dict]):
+        if not messages:
+            return "No previous conversation."
+        
+        formatted_messages: list[str] = []
+
+        for message in messages:
+            sender = message.get("sender", ConvRole.user.value)
+            content = message.get("content", "")
+            formatted_messages.append(f"{sender}: {content}")
+
+        return "\n".join(formatted_messages)
 
     def _build_prompt(
         self,
         course_name: str,
         question: str,
-        retrieved_docs: list[Document]
+        retrieved_docs: list[Document],
+        recent_messages: list[dict]
     ):
         context = self._format_context(retrieved_docs)
+        conversation_history = self._format_conversation_history(recent_messages)
 
         return f"""
 You are a virtual assistant specialized in the course "{course_name}".
@@ -260,19 +371,27 @@ You will be given context extracted from documents uploaded by the professor for
 
 Rules:
 - Answer only based on the provided context.
+- Use the conversation history only to understand follow-up questions and references.
+- Do not use conversation history as proof for factual information unless it is supported by the course context.
 - If the context is insufficient, clearly say that the information is not available in the course materials.
+- If the course context does not provide a complete list when the user asks for one, say that the list may be incomplete.
 - Do not invent information.
 - Explain clearly and simply, in a structured way suitable for students.
 - Break down complex ideas step by step when helpful.
 - If a source chunk is clearly unrelated to the question, ignore it entirely.
 - When you use information from a context chunk, mention the document name and page naturally, for example: (AlPD_cursuri.pdf, p. 25).
 - Do not copy raw context labels such as "Context chunk", "Document:", "Page:", or "[Source ...]" into the answer.
-- Always respond in the same language as the student's question.
+
+Language rules:
+- You MUST answer in the same language as the CURRENT STUDENT QUESTION.
+
+Conversation history:
+{conversation_history}
 
 Context:
 {context}
 
-Student question:
+CURRENT STUDENT QUESTION:
 {question}
 
 Answer:

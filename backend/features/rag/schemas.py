@@ -1,6 +1,7 @@
 from typing import Optional
 
 from pydantic import BaseModel, Field
+from ..conversations.enums import ConvRole
    
 class DocumentUploadResponse(BaseModel):
     doc_id: str = Field(..., min_length=1)
@@ -9,6 +10,7 @@ class DocumentUploadResponse(BaseModel):
 
 class ChatRequest(BaseModel):
     question: str = Field(..., min_length=1, max_length=2000)
+    conversation_id: str | None = None
 
 class SourceChunk(BaseModel):
     content: str
@@ -17,5 +19,6 @@ class SourceChunk(BaseModel):
     chunk_index: Optional[int] = None
 
 class ChatResponse(BaseModel):
+    conversation_id: str
     answer: str
     sources: list[SourceChunk]

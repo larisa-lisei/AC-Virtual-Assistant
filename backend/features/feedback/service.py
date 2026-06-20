@@ -1,9 +1,14 @@
+from core.config import settings
 from .schemas import ProfessorChatResponse
+from features.conversations.enums import ConvType, ConvRole
+from features.conversations.schemas import ConversationHistoryResponse
 
 class FeedbackService:
-    def __init__(self, repository, llm_service):
+    def __init__(self, repository, llm_service, course_service, conversation_service):
         self.repository = repository
         self.llm_service = llm_service
+        self.course_service = course_service
+        self.conv_service = conversation_service
 
     def log_student_question(self, course_id, course_name, question, answer_status, answer):
         answer_preview = self._extract_answer_preview(answer)
@@ -15,6 +20,74 @@ class FeedbackService:
             answer_preview
         )
     
+    def generate_professor_feedback(self, course_id, professor_question, conversation_id, current_user) -> ProfessorChatResponse:
+        course = self.course_service.ensure_professor_can_manage_course(current_user, course_id)
+        course_name = course["name"]
+
+        conversation_id = self.conv_service.get_or_create_conversation(
+            conversation_id=conversation_id,
+            user_id=current_user.id,
+            course_id=course_id,
+            course_name=course_name,
+            conversation_type=ConvType.feedback
+
+        )
+
+        recent_messages = (
+            self.conv_service.get_recent_messages(
+                conversation_id=conversation_id,
+                limit=settings.HISTORY_LIMIT
+            )
+        )
+
+        question_logs = self.repository.get_questions_for_course(course_id, limit=100)
+
+        if not question_logs:
+            answer="No student questions are available for this course yet."
+
+            self.conv_service.save_exchange(
+                conversation_id=conversation_id,
+                user_message=professor_question,
+                assistant_message=answer
+            )
+
+            return ProfessorChatResponse(
+                conversation_id=conversation_id,
+                answer=answer
+            )
+        
+        prompt = self._build_feedback_prompt(course_name, question_logs, recent_messages, professor_question)
+
+        feedback = self.llm_service.generate_answer(prompt)
+
+        self.conv_service.save_exchange(
+            conversation_id=conversation_id,
+            user_message=professor_question,
+            assistant_message=feedback
+        )
+
+        return ProfessorChatResponse(
+            conversation_id=conversation_id,
+            answer=feedback
+        )
+    
+    def get_active_feedback_conversation(self, course_id, current_user) -> ConversationHistoryResponse:
+        self.course_service.ensure_professor_can_manage_course(current_user, course_id)
+        return self.conv_service.get_active_conversation(
+            user_id=current_user.id,
+            course_id=course_id,
+            conversation_type=ConvType.feedback,
+            include_sources=False
+        )
+    
+    def delete_active_feedback_conversation(self, course_id, current_user):
+        self.course_service.ensure_professor_can_manage_course(current_user, course_id)
+        self.conv_service.delete_active_conversation(
+            user_id=current_user.id,
+            course_id=course_id,
+            conversation_type=ConvType.feedback
+        )
+
     def _extract_answer_preview(self, answer):
         if not answer or not answer.strip():
             return None
@@ -26,47 +99,19 @@ class FeedbackService:
             return text[:150]
         
         return first_sentence
-    
-    '''
-    def _get_questions_for_course(self, course_id) -> list[QuestionLogResponse]:
-        questions = self.repository.get_questions_for_course(course_id)
 
-        return [
-            QuestionLogResponse(
-                id=str(item["_id"]),
-                course_id=item["course_id"],
-                course_name=item["course_name"],
-                question=item["question"],
-                answer_status=item["answer_status"],
-                created_at=item["created_at"]
-            )
-            for item in questions
-        ]
-    '''
-    
-    def generate_professor_feedback(self, course_id, course_name, professor_question) -> ProfessorChatResponse:
-        question_logs = self.repository.get_questions_for_course(course_id, limit=100)
-
-        if not question_logs:
-            return ProfessorChatResponse(
-                answer="No student questions are available for this course yet."
-            )
-        
-        prompt = self._build_feedback_prompt(course_name, question_logs, professor_question)
-
-        feedback = self.llm_service.generate_answer(prompt)
-
-        return ProfessorChatResponse(answer=feedback)
-    
-
-    def _build_feedback_prompt(self, course_name, question_logs: list[dict], professor_question):
+    def _build_feedback_prompt(self, course_name, question_logs: list[dict], recent_messages, professor_question):
         formatted_logs = self._format_questions_logs(question_logs)
+        formatted_history=self._format_conversation_history(recent_messages)
 
         return f"""
 You are an educational analytics assistant helping a professor improve their course.
 
 Course:
 {course_name}
+
+Previous feedback conversatiion:
+{formatted_history}
 
 Below is a list of anonymous student questions asked in this course.
 
@@ -87,13 +132,14 @@ Use the answer preview to decide whether the answer was actually useful.
 Student question logs:
 {formatted_logs}
 
-Professor's question:
+CURRENT PROFESSOR QUESTION:
 {professor_question}
 
 Analyze these logs and provide feedback for the professor.
 IMPORTANT: professors's questions can be analytitical or factual.
 
 Rules:
+- Use the previous feedback conversation only to understand follow-up references.
 - First determine the type of the professor's question: analytical or factual, without mentioning the type in te answer.
 - If FACTUAL: answer briefly, no analysis.
 - If ANALYTICAL: analyze patterns and provide insights.
@@ -107,11 +153,12 @@ Rules:
 - Provide clear, structured, and actionable insights.
 
 - NEVER list all questions.
-- Only include at mos 2-3 examples IF strictly necessary.
+- Only include at most 2-3 examples IF strictly necessary.
 - Prefer summarizing patterns instead of enumerating questions.
 
 - Use the "no_relevant_docs" status to identify missing or insufficient course materials.
-- Always respond in the same language as the professor's question.
+- NEVER mention internal log identifiers or metadata in the answer.
+- You MUST ALWAYS answer in the same language as the CURRENT PROFESSOR QUESTION.
 
 """.strip()
     
@@ -119,10 +166,37 @@ Rules:
         formatted_logs: list[str] = []
 
         for index, log in enumerate(question_logs, start=1):
-            formatted_logs.append(
-                f"[Question {index} | status={log.get('answer_status')} | created_at={log.get('created_at')}]\n"
-                f"Student question: {log.get('question')}\n"
-                f"Answer preview: {log.get('answer_preview') or "No answer preview available."}"
+            answer_preview = (
+                log.get("answer_preview")
+                or "No answer preview available."
+            )
+            formatted_logs.append( 
+                "<student_question_log>\n" 
+                f"Timestamp: {log.get('created_at')}\n" 
+                f"Internal answer status: {log.get('answer_status')}\n" 
+                f"Student question: {log.get('question')}\n" 
+                f"Answer preview: {answer_preview}\n" 
+                "</student_question_log>" 
             )
 
         return "\n\n".join(formatted_logs)
+    
+    def _format_conversation_history(self, messages: list[dict]):
+        if not messages:
+            return "No previous feedback conversation."
+        
+        formatted_messages: list[str] = []
+
+        for message in messages:
+            sender = message.get("sender", ConvRole.user.value)
+            sender_label = (
+                "Professor"
+                if sender == ConvRole.user.value
+                else "Assistant"
+            )
+
+            content = message.get("content", "")
+
+            formatted_messages.append(f"{sender_label}: {content}")
+
+        return "\n".join(formatted_messages)
