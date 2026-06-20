@@ -1,4 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+
+from features.courses.exceptions import CourseNotFoundError
+from features.courses.dependencies import get_course_service
+from features.courses.service import CourseService
+from db.exceptions import InvalidIdError
+
 from .schemas import (
     CreateStudentRequest, 
     StudentResponse,
@@ -14,15 +20,23 @@ from .repository import UserRepository
 from .exceptions import (
     UserAlreadyExistsError,
     UserNotFoundError,
-    InvalidUserIdError,
-    CourseNotFoundError,
-    NoUpdateFieldsProvidedError
+    NoUpdateFieldsProvidedError,
+    DuplicatedValueError
+)
+from .enums import (
+    DegreeType,
+    ProgramType,
+    BachelorSpecialization,
+    MasterSESpecialization,
+    MasterCSITSpecialization
 )
 
 router = APIRouter(prefix="/api/users")
 
-def get_user_service() -> UserService:
-    return UserService(UserRepository())
+def get_user_service(
+    course_service: CourseService = Depends(get_course_service)
+) -> UserService:
+    return UserService(UserRepository(), course_service)
 
 @router.post(
     "/add-account/student",
@@ -84,7 +98,7 @@ def get_professors(
     return user_service.get_professors(filters)
     
 @router.delete(
-    "/{user_email}",
+    "/{user_id}",
     status_code=status.HTTP_204_NO_CONTENT
 )
 def delete_user(
@@ -92,13 +106,13 @@ def delete_user(
     user_service: UserService = Depends(get_user_service)
 ):
     try:
-        return user_service.delete_user(user_id)
+        user_service.delete_user(user_id)
     except UserNotFoundError as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"User with id {e.user} not found."
         )
-    except InvalidUserIdError as e:
+    except InvalidIdError as e:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail=f"Invalid user id: {e.id}"
@@ -114,7 +128,12 @@ def update_student(
     user_service: UserService = Depends(get_user_service)
 ):
     try:
-        return user_service.update_student(user_id, student_data)
+        user_service.update_student(user_id, student_data)
+    except NoUpdateFieldsProvidedError as e:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail=str(e)
+        )
     except UserNotFoundError as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -125,15 +144,15 @@ def update_student(
             status_code=status.HTTP_409_CONFLICT,
             detail=f"Student with email {e.email} already exists."
         )
-    except InvalidUserIdError as e:
+    except InvalidIdError as e:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail=f"Invalid user id: {e.id}"
         )
-    except NoUpdateFieldsProvidedError as e:
+    except DuplicatedValueError as e:
         raise HTTPException(
-            status_code==status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
+            status_code=status.HTTP_409_CONFLICT,
+            detail=f"Another user with {e.field}: {e.value} already exists."
         )
     
 @router.patch(
@@ -146,20 +165,51 @@ def update_professor(
     user_service: UserService = Depends(get_user_service)
 ):
     try:
-        return user_service.update_professor(user_id, professor_data)
+        user_service.update_professor(user_id, professor_data)
     except UserNotFoundError as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Prfessor with id {e.user} not found."
+            detail=f"Professor with id {e.user} not found."
         )
     except UserAlreadyExistsError as e:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail=f"Professor with email {e.email} already exists."
         )
-    except InvalidUserIdError as e:
+    except InvalidIdError as e:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail=f"Invalid user id: {e.id}"
         )
+    except NoUpdateFieldsProvidedError as e:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail=str(e)
+        )
+    except CourseNotFoundError as e:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail=f"Courses with ids {e.course_ids} not found."
+        )
+    
+
+# static endpoint for admin menu 
+@router.get("/admin-menu")
+def get_admin_menu():
+    return {
+        "degrees": {degree.name: degree.value for degree in DegreeType},
+        "programs": {program.name: program.value for program in ProgramType},
+        "specializations": {
+            "bachelor": [spec.value for spec in BachelorSpecialization],
+            "master": {
+                "csit": [spec.value for spec in MasterCSITSpecialization],
+                "se": [spec.value for spec in MasterSESpecialization]
+            }
+        },
+
+        "years": {
+            "bachelor": [1, 2, 3, 4],
+            "master": [1, 2]
+        }
+    }
         

@@ -1,38 +1,39 @@
 import './chatComponent.css';
 import type { Course } from '../ChatPage';
-import SendIcon from '@mui/icons-material/Send';
+import AddCommentIcon from '@mui/icons-material/AddComment';
+import { IconButton, Tooltip } from '@mui/material';
+import CourseAssistantChat from './utils/conversations/CourseAssistantChat';
 
 interface StudentChatComponentProps {
     selectedCourse?: Course;
 }
 
-export default function ChatComponent({ selectedCourse }: StudentChatComponentProps) {
-    //no course selected - welcome message
-    if (!selectedCourse) {
-        return (
-            <div className="chat-component-container">
-                <div className="chat-description">
-                    <h2>Welcome to AC Virtual Assistant!</h2>
-                    <p>Pick a virtual assistant and let's get started!</p>
-                </div>
-            </div>
-        )
-    }
-
+export default function StudentChatComponent({ selectedCourse }: StudentChatComponentProps) {
     return (
-        <div className="chat-component-container">
-            <div className="course-title">
-                <h3>{selectedCourse.title}</h3>
-            </div>
-            <div className="chat-description">
-                <h2>Ask me anything about this course!</h2>
-            </div>
-            <div className="input-text">
-                <div className="input-wrapper">
-                    <input type="text" placeholder="Type here..."/>
-                    <SendIcon className="input-icon"/>
-                </div>
-            </div>
-        </div>
+        <CourseAssistantChat
+            selectedCourse={selectedCourse}
+            showSources={false}
+            renderHeader={(
+                handleStartNewConversation,
+                isSending
+            ) => (
+                selectedCourse ? (
+                    <div className="course-title">
+                        <h3>{selectedCourse.name}</h3>
+
+                        <Tooltip title="Start new conversation">
+                            <IconButton
+                                type="button"
+                                className='new-chat-button'
+                                onClick={handleStartNewConversation}
+                                disabled={isSending}
+                            >
+                                <AddCommentIcon />
+                            </IconButton>
+                        </Tooltip>
+                    </div>
+                ) : null
+            )}
+        />
     )
 }

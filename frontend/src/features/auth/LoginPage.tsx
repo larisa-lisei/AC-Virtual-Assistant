@@ -79,7 +79,6 @@ export default function LoginPage() {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                     />
-                    <p>Account not activated? <Link to="/activate-account">Click here.</Link></p>
                     <Button
                         type="submit"
                         variant="contained">Sign In

@@ -12,47 +12,41 @@ import ProfessorChatComponent from './components/ProfessorChatComponent';
 import AdminMenu from './components/menu/AdminMenu';
 import AdminChatComponent from './components/AdminChatComponent';
 import { Menu, MenuItem, Snackbar, Alert } from '@mui/material';
+import { getErrorMessage } from '../../utils/error';
 
-type MessageRole = 'user' | 'assistant';
 type UserRole = 'student' | 'professor' | 'admin';
 
-export interface Message {
-    id: string;
-    role: MessageRole;
-    text: string;
-}
-
 export interface User {
-    //id: number;
-    //name: string;
+    id: string;
+    email: string;
     role: UserRole;
 }
 
-export interface Student extends User {
-    role: 'student';
-    enrolledCoursesIds: number[];
-}
-
-export interface Professor extends User {
-    role: 'professor';
-    teachingCoursesIds: number[];
-}
-
-export interface Course {
-    id: number;
-    title: string;
-}
+export type Course = {
+    id: string;
+    name: string;
+    degree: string;
+    program: string;
+    year: number;
+    specialization?: string | null
+};
 
 export interface AdminMenuOption {
     role: 'student' | 'professor';
+
     degree?: string;
     program?: string;
     year?: number;
     specialization?: string;
+
+    // title displayed in chat header 
+    title?: string;
+    subtitle?:string;
 }
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '';
+
 export default function ChatPage() {
-    const username = ' username';
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const logoutMenuOpen = Boolean(anchorEl);
     const handleLogoutMenuClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -62,30 +56,93 @@ export default function ChatPage() {
         setAnchorEl(null);
     }
 
-    const courses: Course[] = [
-        { id: 1, title: 'Parallel and Distributed Algorithms' },
-        { id: 2, title: 'Artificial Intelligence' },
-        { id: 3, title: 'Web Application Development' },
-        { id: 4, title: 'Mobile Application Development' },
-        { id: 5, title: 'Service-Oriented Programming' }
-    ];
+    const [courses, setCourses] = useState<Course[]>([]);
+    const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
 
-    const [selectedCourseId, setSelectedCourseId] = useState<number | null>(null);
-    const [messages, setMessages] = useState<Message[]>([]);
     const[menuOpen, setMenuOpen] = useState(true);
 
-    const [openSnackBar, setOpenSnackBar] = useState(false);
-    const [errorMessage, setErrorMessage] = useState("");
+    const [snackbar, setSnackbar] = useState<{
+        open: boolean;
+        message: string;
+        severity: "success" | "error";
+    }>({
+        open: false,
+        message: "",
+        severity: "success"
+    })
+
+    const handleError = (message: string) => {
+        setSnackbar({
+            open: true,
+            message,
+            severity: "error"
+        });
+    };
+
+    const handleSuccess = (message: string) => {
+        setSnackbar({
+            open: true,
+            message,
+            severity: "success"
+        });
+    };
 
     const navigate = useNavigate();
-    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-    //const [user, setUser] = useState<User>({role: 'student'});
-    //const [user, setUser] = useState<Professor>({role: 'professor', teachingCoursesIds: [1, 3, 5]});
     const [user, setUser] = useState<User | null>(null);
     const [loadingUser, setLoadingUser] = useState(true);
     const [activeAdminItem, setActiveAdminItem] = useState<AdminMenuOption | null>(null);
+    const [adminMenuData, setAdminMenuData] = useState<any>(null);
+
+    const fetchCourses = async(role: string) => {
+        const endpoint =
+            role === "professor"
+                ? `${API_BASE_URL}/courses/teaching`
+                : `${API_BASE_URL}/courses/learning`;
+
+        try {
+            const response = await fetch(endpoint, {
+                method: "GET",
+                credentials: "include"
+            });
+
+            if(!response.ok) {
+                const errorData = await response.json();
+                handleError(getErrorMessage(errorData));
+                setCourses([]);
+                return;
+            }
+
+            const data: Course[] = await response.json();
+            setCourses(data);
+        } catch {
+            handleError("Something went wrong.");
+            setCourses([]);
+        }
+    }
 
     useEffect(() => {
+         const fetchAdminMenu = async () => {
+            try {
+                const response = await fetch(`${API_BASE_URL}/users/admin-menu`,
+                    {
+                        method: "GET",
+                        credentials: "include"
+                    }
+                );
+
+                if(!response.ok) {
+                    const errorData = await response.json();
+                    handleError(getErrorMessage(errorData))
+                    return;
+                }
+
+                const data = await response.json();
+                setAdminMenuData(data);
+            } catch {
+                handleError("Error fetching admin menu data.");
+            }
+        };
+
         const fetchCurrentUser = async () => {
             try {
                 const response = await fetch(
@@ -97,6 +154,8 @@ export default function ChatPage() {
                 );
 
                 if (!response.ok) {
+                    const errorData = await response.json();
+                    handleError(getErrorMessage(errorData))
                     setUser(null);
                     return;
                 }
@@ -104,9 +163,21 @@ export default function ChatPage() {
                 const data = await response.json();
 
                 setUser({
+                    id: data.id,
+                    email: data.email,
                     role: data.role
                 });
-            } catch (error) {
+
+                if (data.role === "admin") {
+                    await fetchAdminMenu();
+                }
+
+                if(data.role === "professor" || data.role === "student") {
+                    await fetchCourses(data.role);
+                }
+
+            } catch {
+                handleError("Something went wrong.")
                 setUser(null);
             } finally {
                 setLoadingUser(false);
@@ -114,6 +185,7 @@ export default function ChatPage() {
         };
 
         fetchCurrentUser();
+
     }, []);
     
     if (loadingUser) {
@@ -136,16 +208,14 @@ export default function ChatPage() {
 
             if(!response.ok) {
                 const errorData = await response.json();
-                setErrorMessage(errorData.detail);
-                setOpenSnackBar(true);
+                handleError(getErrorMessage(errorData));
                 return;
             }
 
             navigate("/login");
 
-        } catch (error) {
-            setErrorMessage("Something went wrong.");
-            setOpenSnackBar(true);
+        } catch {
+            handleError("Something went wrong.");
         }
     };
 
@@ -155,17 +225,13 @@ export default function ChatPage() {
         )
         : undefined;
 
-    const handleSelectedCourse = (courseId: number) => {
-        if(selectedCourseId !== courseId) {
-            setSelectedCourseId(courseId);
-            setMessages([]); // new chat when another course is selected
+    const handleSelectedCourse = (courseId: string) => {
+        if(selectedCourseId === courseId) {
+            return;
         }
-    }
 
-    const professorCourses =
-    user.role === 'professor'
-        ? courses //.filter(course => user.teachingCoursesIds.includes(course.id))
-        : [];
+        setSelectedCourseId(courseId);
+    }
 
     const handleAdminActiveItem = (clickedItem: AdminMenuOption) => {
         setActiveAdminItem(clickedItem);
@@ -185,15 +251,19 @@ export default function ChatPage() {
         ),
         professor: (
             <ProfessorMenu
-                courses={professorCourses}
+                courses={courses}
                 selectedCourseId={selectedCourseId}
                 onSelectedCourse={handleSelectedCourse}
+                onError={handleError}
+                onSuccess={handleSuccess}
             />
         ),
         admin: (
             <AdminMenu 
                 activeButton={activeAdminItem}
+                adminMenuData={adminMenuData}
                 onSelectedAdminItem={handleAdminActiveItem}
+                onError={handleError}
             />
         ),
     };
@@ -201,7 +271,12 @@ export default function ChatPage() {
     const roleChats = {
         student: <StudentChatComponent selectedCourse={selectedCourse}/>,
         professor: <ProfessorChatComponent selectedCourse={selectedCourse} />,
-        admin: <AdminChatComponent activeItem={activeAdminItem} />
+        admin: <AdminChatComponent 
+                    activeItem={activeAdminItem} 
+                    adminMenuData={adminMenuData}
+                    onError={handleError}
+                    onSuccess={handleSuccess}
+                />
     };
 
     return (
@@ -210,13 +285,17 @@ export default function ChatPage() {
             <div className="chat-title">
                 <h2>AC Virtual Assistant</h2>
                 <div className="hello-username">
-                    <h2>Hello, {user.role} </h2>
-
-                    <button
+                    <h2>
+                        <div className='hello-role'>
+                            Hello, {user.role} 
+                        </div>
+                        <button
                         type="button"
                         onClick={handleLogoutMenuClick}>
-                        <PersonPinIcon sx={{ fontSize: 40 }} className = "profile-icon"/>
-                    </button>
+                            <PersonPinIcon sx={{ fontSize: 40 }} className = "profile-icon"/>
+                        </button>
+
+                    </h2>
 
                     <Menu
                         anchorEl={anchorEl}
@@ -269,19 +348,19 @@ export default function ChatPage() {
         </div>
 
         <Snackbar
-            open={openSnackBar}
+            open={snackbar.open}
             autoHideDuration={4000}
-            onClose={() => setOpenSnackBar(false)}
+            onClose={() => setSnackbar((prev) => ({...prev, open: false}))}
             anchorOrigin={{
                 vertical: "top",
                 horizontal: "right"
             }}
         >
             <Alert
-                severity="error"
-                onClose={() => setOpenSnackBar(false)}
+                severity={snackbar.severity}
+                onClose={() => setSnackbar((prev) => ({...prev, open: false}))}
             >
-                {errorMessage}
+                {snackbar.message}
             </Alert>
         </Snackbar>
     </>

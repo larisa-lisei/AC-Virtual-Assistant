@@ -1,4 +1,4 @@
-from pymongo import MongoClient
+from pymongo import ASCENDING, DESCENDING, MongoClient
 from pymongo.database import Database
 from pymongo.collection import Collection
 import os
@@ -13,9 +13,21 @@ users: Collection = db["users"]
 courses: Collection = db["courses"]
 blacklist: Collection = db["token_blacklist"]
 student_question_logs: Collection = db["student_question_logs"]
-
-#pdf_chunks_collection: Collection = db["pdf_chunks"]
-#chat_history_collection: Collection = db["chat_history"]
+chat_history: Collection = db["chat_history"]
 
 # indexes
 users.create_index("email", unique=True)
+student_question_logs.create_index(
+    [
+        ("course_id", ASCENDING),
+        ("created_at", DESCENDING)
+    ]
+)
+chat_history.create_index(
+    [
+        ("user_id", ASCENDING),
+        ("course_id", ASCENDING),
+        ("conversation_type", ASCENDING),
+        ("updated_at", DESCENDING)
+    ]
+)

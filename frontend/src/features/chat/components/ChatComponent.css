@@ -7,11 +7,15 @@
     display: flex;
     flex-direction: column;
     overflow-y: auto;
+    overflow: hidden;
 }
 
 .course-title {
     width: 100%;
     border-bottom: 2px solid var(--primary-color);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 
 .course-title h3 {
@@ -25,6 +29,11 @@
     align-items: center;
     justify-content: space-between;
     gap: 10px;
+}
+
+.title-new-conv {
+    display: flex;
+    flex-direction: row;
 }
 
 .switch-button {
@@ -64,14 +73,12 @@
 
 .input-wrapper {
     position: relative;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
+    width: 100%;
 }
 
 .input-wrapper input {
     width: 100%;
-    padding: 40px 50px 40px 16px;
+    padding: 20px 50px 20px 10px;
     border: 2px solid var(--primary-color);
     border-radius: 15px;
     box-sizing: border-box;
@@ -83,27 +90,12 @@
     border-radius: 25px;
 }
 
-.input-wrapper .input-icon {
-    position: absolute;
-    right: 15px;
-    cursor: pointer;
-}
-
 .input-icon {
     color: var(--primary-color);
 }
 
 .input-icon:hover {
     filter: drop-shadow(0px 0px 6px rgba(0,0,0,0.3));
-}
-
-.chat-icon {
-    color: var(--primary-color);
-    border: none;
-    background: none;
-    padding: 0;
-    margin: 0;
-    cursor: pointer;
 }
 
 .admin-title {
@@ -147,9 +139,119 @@
 }
 
 .admin-account-email {
-    color: black;
+    /*color: black;*/
     text-wrap: nowrap;
+    font-style: italic;
 }
+
+
+.new-chat-button {
+    margin-right: 5px !important;
+    color: var(--primary-color) !important;
+}
+
+.new-chat-button:hover {
+    color: var(--hover-color);
+    filter: drop-shadow(0px 0px 6px rgba(0, 0, 0, 0.15));
+}
+
+.send-button {
+    position: absolute;
+    right: 0px;
+    top: 15px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.send-button:disabled {
+    opacity: 0.5;
+}
+
+/* chat messages */
+.chat-message-list {
+    width: 100%;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px;
+    overflow-y: auto;
+    box-sizing: border-box;
+}
+
+.chat-message {
+    max-width: 75%;
+    padding: 12px 14px;
+    border-radius: 14px;
+    line-height: 1.4;
+    word-break: break-word;
+}
+
+.chat-message.user {
+    align-self: flex-end;
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.chat-message.assistant {
+    align-self: flex-start;
+    color: black;
+    position: sticky;
+}
+
+.chat-message p {
+    margin: 0;
+}
+
+.loading-message {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.chat-sources {
+    margin-top: 10px;
+    font-size: 0.85rem;
+    opacity: 0.85;
+}
+
+.chat-source {
+    margin-top: 4px;
+}
+
+.chat-error {
+    color: red;
+    margin: 8px 16px;
+    font-size: 0.9rem; 
+}
+
+.message-markdown {
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+.message-markdown p {
+    margin: 0;
+    font-size: inherit;
+}
+
+.message-markdown ul {
+    margin: 8px 0 0 18px;
+    padding: 0;
+}
+
+.message-markdown li {
+    margin-bottom: 4px;
+}
+
+.message-markdown strong {
+    font-weight: 700;
+}
+
 
 @media(max-width: 810px) {
     .chat-component-container, .chat-description {
@@ -161,7 +263,7 @@
     }
 
     .course-title.professor h3 {
-        font-size: 0.9rem;
+        font-size: 0.8rem;
         margin-bottom: 0;
     }
 
@@ -192,5 +294,9 @@
 
     .admin-table .MuiTableCell-root {
         font-size: 0.9rem;
+    }
+
+    .chat-message p {
+        font-size: 0.8rem;
     }
 }

@@ -1,7 +1,9 @@
-from fastapi import Depends
+from fastapi import Depends, Request
 from jose import JWTError
 from fastapi import HTTPException, status
 from fastapi.security import APIKeyCookie
+
+from features.users.repository import UserRepository
 
 from features.auth.utils import decode_token
 from .repository import AuthRepository
@@ -15,9 +17,13 @@ access_token_cookie = APIKeyCookie(
 def get_auth_repository() -> AuthRepository:
     return AuthRepository()
 
+def get_user_repository() -> UserRepository:
+    return UserRepository()
+
 def get_current_user(
-        token: str | None = Depends(access_token_cookie),
-        auth_repo: AuthRepository = Depends(get_auth_repository)
+    token: str | None = Depends(access_token_cookie),
+    auth_repo: AuthRepository = Depends(get_auth_repository),
+    user_repo: UserRepository = Depends(get_user_repository)
 ) -> CurrentUser:
     if not token:
         raise HTTPException(
@@ -37,9 +43,14 @@ def get_current_user(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Token has been invalidated."
         )
+    
+    user = user_repo.find_by_id(payload["sub"])
+    if not user:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "User account no longer exists.")
 
     return CurrentUser(
-        email=payload["sub"],
+        id=payload["sub"],
+        email=payload["email"],
         role=payload["role"],
         token=token,
         exp=payload["exp"]
@@ -54,3 +65,17 @@ def require_role(*roles: str):
             )
         return current_user
     return guard
+
+def require_same_user(path_param):
+    def guard(
+        request: Request,
+        current_user: CurrentUser = Depends(get_current_user)
+    ) -> CurrentUser:
+        target_id = request.path_params.get(path_param)
+        if current_user.id != target_id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You can only access your own resources."
+            )
+        return current_user
+    return guard  

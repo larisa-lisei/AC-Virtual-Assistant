@@ -3,6 +3,7 @@ import formImage from '../../assets/login-form.png';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import {TextField, Button, Snackbar, Alert} from '@mui/material';
+import { getErrorMessage } from '../../utils/error';
 
 export default function ActivateAccountPage() {
 
@@ -14,7 +15,6 @@ export default function ActivateAccountPage() {
         };
     }, []);
 
-    const [token, setToken] = useState("");
     const [password, setPassword] = useState("");
 
     const [openSnackBar, setOpenSnackBar] = useState(false);
@@ -26,37 +26,17 @@ export default function ActivateAccountPage() {
 
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-    const cleanMessage = (message: string) => {
-        return message.replace(/^Value error,\s*/i, "");
-    };
-
-    const getErrorMessage = (errorData: any) => {
-        if(typeof errorData.detail === "string") {
-            return errorData.detail;
-        }
-
-        if(Array.isArray(errorData.detail)) {
-            return errorData.detail
-                .map((error: any) => cleanMessage(error.msg))
-                .join(" ");
-        }
-
-        return "Something went wrong.";
-    };
-
     const handleSubmit = async (event: React.SubmitEvent<HTMLFormElement>) => {
         // prevent page refresh on form submit
         event.preventDefault()
 
         const tokenFromUrl = searchParams.get("token");
-        console.log("Token from URL:", tokenFromUrl);
         if(!tokenFromUrl) {
             setErrorMessage("Activation token is missing.");
             setOpenSnackBar(true);
             return;
         }
 
-        console.log("PASSWORD: ", password);
         try {
             const response = await fetch(`${API_BASE_URL}/auth/activate-account`, {
                 method: "POST",
@@ -89,7 +69,7 @@ export default function ActivateAccountPage() {
             </div>
             <div className="login-card-info">
                 <h1>Welcome to<br/> AC Virtual Assistant!</h1>
-                <p>Enter your activation token and set your password.</p>
+                <p>Set password here to activate your account.</p>
                 <form onSubmit = {handleSubmit}>
                     <TextField
                         label="Set Password"

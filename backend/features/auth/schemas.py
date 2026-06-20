@@ -34,6 +34,7 @@ class LoginRequest(BaseModel):
     password: str
 
 class CurrentUser(BaseModel):
+    id: str
     email: EmailStr
     role: UserRole
     token: str
