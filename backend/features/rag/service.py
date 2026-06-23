@@ -100,7 +100,7 @@ class RagService:
                 metadata["chunk_index"] = index
 
                 if "page" in metadata and metadata["page"] is not None:
-                    metadata["page"] = int(metadata["page"])
+                    metadata["page"] = int(metadata["page"]) + 1
 
                 final_documents.append(
                     Document(
@@ -189,6 +189,7 @@ class RagService:
         course = self._get_course_for_current_user(current_user, course_id)
 
         course_name = course["name"]
+        hints_only = course.get("hints_only", False)
 
         conversation_id = self.conv_service.get_or_create_conversation(
             conversation_id=conversation_id,
@@ -237,7 +238,8 @@ class RagService:
             course_name=course_name,
             question=question,
             retrieved_docs=retrieved_docs,
-            recent_messages=recent_messages
+            recent_messages=recent_messages,
+            hints_only=hints_only
         )
 
         answer = self.llm_service.generate_answer(prompt)
@@ -357,10 +359,44 @@ class RagService:
         course_name: str,
         question: str,
         retrieved_docs: list[Document],
-        recent_messages: list[dict]
+        recent_messages: list[dict],
+        hints_only: bool
     ):
         context = self._format_context(retrieved_docs)
         conversation_history = self._format_conversation_history(recent_messages)
+
+        exercise_guidance = (
+            """ 
+Hints-only mode is ENABLED.
+
+When the current question asks for the solution of an exercise, problem,
+calculation, proof, implementation task, coding or practical assignment:
+
+- Do NOT provide the complete solution.
+- Do NOT provide the final numerical result.
+- Do NOT write the complete final proof.
+- Do NOT provide complete executable code that directly solves the task.
+- Provide progressiv hints that guide the student toward the solution.
+- Start with the smallest useful hint.
+- Explain which concept, formula, theorem, algorithm, or course section the student shoul use.
+- Prefer guiding questions over direct answers.
+- Encourage the student to attempt the next step.
+- Reveal additional steps only when the student asks for another hint.
+- If the student submits an attempted solution, evaluate it and indicate what should be corrected without replacing it with a complete solution.
+
+Hints-only mode applies only to exercises and tasks requiring a solution.
+For conceptual questions, definitions, explanations, and course information,
+answer normally and completely.
+"""
+    if hints_only
+    else
+    """ 
+Hints-only is DISBALED.
+
+You may provide complete explanations and complete solutions when they are
+supported by the course context.
+"""
+        )
 
         return f"""
 You are a virtual assistant specialized in the course "{course_name}".
@@ -384,6 +420,17 @@ Rules:
 
 Language rules:
 - You MUST answer in the same language as the CURRENT STUDENT QUESTION.
+- This rule also applies in hints-only mode.
+- Determine the response language ONLY from the CURRENT STUDENT QUESTION.
+
+Formatting rules:
+- Format the answer using standard Markdown.
+- Do NOT use LaTeX syntax or LaTeX delimiters.
+- Do NOT use expressions such as `$...$`, `$$...$$`, `\frac`, `\sqrt`, `\Delta`, `\times`, `\pm`, or `\neq`.
+- Write mathematical expressions using plain text and readable Unicode symbols.
+
+Exercise assistance rules:
+{exercise_guidance}
 
 Conversation history:
 {conversation_history}

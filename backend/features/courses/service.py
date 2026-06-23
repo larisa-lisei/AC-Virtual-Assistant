@@ -25,7 +25,8 @@ class CourseService:
             degree=course["degree"],
             program=course["program"],
             year=course["year"],
-            specialization=course.get("specialization")
+            specialization=course.get("specialization"),
+            hints_only=course.get("hints_only", False)
         )
 
     def get_course_by_id(self, course_id: str):
@@ -91,12 +92,8 @@ class CourseService:
         ]
     
     def ensure_professor_can_manage_course(self, current_user: CurrentUser, course_id: str):
-        validate_id(course_id)
         course = self.get_course_by_id(course_id)
 
-        if not course:
-            raise CourseNotFoundError([course_id])
-        
         professor = self.user_repository.find_by_id(current_user.id)
         professor_course_ids = [
             str(professor_course_id)
@@ -140,10 +137,23 @@ class CourseService:
             for course in courses
         ]
     
-    def delete_course(self, course_id: str):
+    def delete_course(self, course_id, current_user):
         validate_id(course_id)
-        course = self.repository.find_courses_by_id([course_id])
-        if not course:
-            raise CourseNotFoundError([course_id])
-        self.user_repository.remove_course_from_professors(course_id)
-        self.repository.delete_course_by_id(course_id)
+        course = self.ensure_professor_can_manage_course(
+            current_user=current_user,
+            course_id=course_id
+        )
+      
+        self.user_repository.remove_course_from_professors(course["_id"])
+        self.repository.delete_course_by_id(course["_id"])
+
+    def update_hints_only(self, course_id, hints_only: bool, current_user):
+        course = self.ensure_professor_can_manage_course(
+            current_user=current_user,
+            course_id=course_id
+        )
+        
+        self.repository.update_hints_only(
+            course_id=course["_id"],
+            hints_only=hints_only
+        )

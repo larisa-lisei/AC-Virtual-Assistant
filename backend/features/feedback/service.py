@@ -160,6 +160,16 @@ Rules:
 - NEVER mention internal log identifiers or metadata in the answer.
 - You MUST ALWAYS answer in the same language as the CURRENT PROFESSOR QUESTION.
 
+Language rules:
+- You MUST answer in the same language as the CURRENT STUDENT QUESTION.
+- This rule also applies in hints-only mode.
+- Determine the response language ONLY from the CURRENT STUDENT QUESTION.
+
+Formatting rules:
+- Format the answer using standard Markdown.
+- Do NOT use LaTeX syntax or LaTeX delimiters.
+- Do NOT use expressions such as `$...$`, `$$...$$`, `\frac`, `\sqrt`, `\Delta`, `\times`, `\pm`, or `\neq`.
+- Write mathematical expressions using plain text and readable Unicode symbols.
 """.strip()
     
     def _format_questions_logs(self, question_logs: list[dict]):

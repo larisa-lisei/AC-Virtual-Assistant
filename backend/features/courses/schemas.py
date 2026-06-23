@@ -38,13 +38,14 @@ def validate_specialization_type(
             f"Specilization 'specialization' is not valid for "
             f"{degree.value} - {program.value}"
         )
-    
+
 class CreateCourseRequest(BaseModel):
     name: str = Field(..., min_length=1, max_length=100)
     degree: DegreeType
     program: ProgramType
     year: int = Field(..., ge=1, le=4)
     specialization: str | None = Field(None, min_length=1, max_length=100)
+    hints_only: bool = False
 
     @model_validator(mode="after")
     def validate_specialization(self):
@@ -59,4 +60,7 @@ class CourseResponse(BaseModel):
     program: ProgramType
     year: int = Field(..., ge=1, le=4)
     specialization: str | None = Field(None, min_length=1, max_length=100)
+    hints_only: bool
     
+class CourseHintsSettings(BaseModel):
+    hints_only: bool

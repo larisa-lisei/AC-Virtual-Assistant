@@ -10,6 +10,7 @@ interface ProfessorMenuProps {
     courses: Course[];
     selectedCourseId: string | null;
     onSelectedCourse: (courseId: string) => void;
+    onHintsOnlyChanged: (courseId: string, hintsOnly: boolean) => void;
     onError: (message: string) => void;
     onSuccess: (message: string) => void;
 }
@@ -24,6 +25,7 @@ export default function ProfessorMenu({
     courses,
     selectedCourseId,
     onSelectedCourse,
+    onHintsOnlyChanged,
     onError,
     onSuccess
 }: ProfessorMenuProps) {
@@ -34,6 +36,8 @@ export default function ProfessorMenu({
     const [documents, setDocuments] = useState<UploadedDocument[]>([]);
     const [isLoadingDocuments, setIsLoadingDocuments] = useState(false);
     const [deletingDocId, setDeletingDocId] = useState<string | null>(null);
+
+    const [isUpdatingHints, setIsUpdatedHints] = useState(false);
 
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '';
 
@@ -183,6 +187,49 @@ export default function ProfessorMenu({
         }
     }
 
+    const handleHintOnlyChange = async (
+        event: React.ChangeEvent<HTMLInputElement>
+    ) => {
+        if(!selectedCourse) {
+            onError('Please select a course first.');
+            return;
+        }
+
+        const newHintOnlyValue = event.target.checked;
+
+        try {
+            setIsUpdatedHints(true);
+
+            const response = await fetch(`${API_BASE_URL}/courses/${selectedCourse.id}/hints-only`,
+                {
+                    method: 'PATCH',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        hints_only: newHintOnlyValue
+                    })
+                }
+            );
+
+            if(!response.ok) {
+                const errorData = await response.json();
+                onError(getErrorMessage(errorData));
+                return;
+            }
+
+            onHintsOnlyChanged(selectedCourse.id, newHintOnlyValue);
+
+            onSuccess(newHintOnlyValue ? 'Hints-only mode enabled.' : 'Hints-only mode disabled.');
+
+        } catch {
+            onError('Something went wrong while updating hints-only mode.')
+        } finally {
+            setIsUpdatedHints(false);
+        }
+    }
+
     return (
         <aside className="menu-container professor">
             <h2>Virtual Assistant Training</h2>
@@ -220,7 +267,12 @@ export default function ProfessorMenu({
                             Delete PDF
                     </Button>
                     <div className="professor-hints-item">
-                        Hints only <Checkbox />
+                        <span>Hints-only</span>
+                        <Checkbox 
+                            checked={selectedCourse.hints_only ?? false}
+                            onChange={handleHintOnlyChange}
+                            disabled={isUpdatingHints}
+                        />
                     </div>
                 </div>
             )}
