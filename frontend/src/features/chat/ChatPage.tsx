@@ -28,7 +28,8 @@ export type Course = {
     degree: string;
     program: string;
     year: number;
-    specialization?: string | null
+    specialization?: string | null;
+    hints_only: boolean;
 };
 
 export interface AdminMenuOption {
@@ -233,6 +234,17 @@ export default function ChatPage() {
         setSelectedCourseId(courseId);
     }
 
+    const handleHintsOnlyChanged = (courseId: string, hintsOnly: boolean) => {
+        setCourses((prevCourses) =>
+            prevCourses.map((course) =>
+                course.id === courseId ? {
+                    ...course,
+                    hints_only: hintsOnly
+                } : course
+            )
+        );
+    };
+
     const handleAdminActiveItem = (clickedItem: AdminMenuOption) => {
         setActiveAdminItem(clickedItem);
     }
@@ -254,6 +266,7 @@ export default function ChatPage() {
                 courses={courses}
                 selectedCourseId={selectedCourseId}
                 onSelectedCourse={handleSelectedCourse}
+                onHintsOnlyChanged={handleHintsOnlyChanged}
                 onError={handleError}
                 onSuccess={handleSuccess}
             />
@@ -286,7 +299,7 @@ export default function ChatPage() {
                 <h2>AC Virtual Assistant</h2>
                 <div className="hello-username">
                     <h2>
-                        <div className='hello-role'>
+                        <div className="hello-role">
                             Hello, {user.role} 
                         </div>
                         <button

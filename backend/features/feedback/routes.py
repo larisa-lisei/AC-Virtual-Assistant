@@ -25,7 +25,7 @@ router = APIRouter(prefix="/api/courses")
 def ask_for_feedback(
     course_id: str,
     request: ChatRequest,
-    current_user: CurrentUser = Depends(require_role(UserRole.professor)),
+    current_user: CurrentUser = Depends(require_role(UserRole.professor.value)),
     feedback_service: FeedbackService = Depends(get_feedback_service)
 ):
     try:

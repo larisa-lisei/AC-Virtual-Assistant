@@ -34,7 +34,7 @@ class CourseRepository:
     # professor search
     def find_course_ids_by_name(self, search: str) -> list[str]:
         courses = list(
-            self.course_collection.find({
+            self.courses_collection.find({
                 "name": {
                     "$regex": re.escape(search),
                     "$options": "i"
@@ -85,3 +85,11 @@ class CourseRepository:
     def delete_course_by_id(self, course_id: str):
         result = self.courses_collection.delete_one({"_id": ObjectId(course_id)})
         return result.deleted_count > 0
+    
+    def update_hints_only(self, course_id, hints_only: bool):
+        result = self.courses_collection.update_one(
+            {"_id": course_id},
+            {"$set": {"hints_only": hints_only}}
+        )
+
+        return result.matched_count > 0

@@ -91,7 +91,12 @@
 }
 
 .input-icon {
+    position: absolute;
+    right: 18px;
+    top: 50%;
+    transform: translateY(-50%);
     color: var(--primary-color);
+    pointer-events: none;
 }
 
 .input-icon:hover {
@@ -158,17 +163,23 @@
 .send-button {
     position: absolute;
     right: 0px;
-    top: 15px;
+    top: 50%;
+    transform: translateY(-50%);
     border: none;
     background: transparent;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
+    z-index: 2;
+    width: 40px;
+    height: 40px;
+    padding: 0;
 }
 
 .send-button:disabled {
     opacity: 0.5;
+    pointer-events: none;
 }
 
 /* chat messages */

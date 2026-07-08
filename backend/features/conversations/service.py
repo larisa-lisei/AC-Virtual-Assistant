@@ -1,6 +1,3 @@
-from features.courses.exceptions import CourseAccessDeniedError
-from features.users.enums import UserRole
-
 from .exceptions import ConversationNotFoundError, ConversationAccessDeniedError
 from .schemas import ConversationHistoryResponse, HistoryMessageResponse
 from .enums import ConvRole, ConvType
@@ -15,7 +12,7 @@ class ConversationService:
             raise ConversationAccessDeniedError()
         if conversation.get("course_id") != course_id:
             raise ConversationAccessDeniedError()
-        if conversation.get("conversation_type") != conv_type:
+        if conversation.get("conversation_type") != conv_type.value:
             raise ConversationAccessDeniedError()
 
     def get_or_create_conversation(self, conversation_id, user_id, course_id, course_name, conversation_type: ConvType):

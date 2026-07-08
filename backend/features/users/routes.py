@@ -28,7 +28,7 @@ from .enums import (
     ProgramType,
     BachelorSpecialization,
     MasterSESpecialization,
-    MasterCSITSpecialization
+    MasterCSITSpecialization,
 )
 
 router = APIRouter(prefix="/api/users")

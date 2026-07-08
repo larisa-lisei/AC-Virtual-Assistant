@@ -8,9 +8,11 @@ def get_embeddings() -> HuggingFaceEmbeddings:
         encode_kwargs={"normalize_embeddings": True}
     )
 
+
 def get_chroma_vector_store() -> Chroma:
     return Chroma(
         collection_name=settings.CHROMA_COLLECTION_NAME,
         embedding_function=get_embeddings(),
-        persist_directory=settings.CHROMA_PERSIST_DIR
+        persist_directory=settings.CHROMA_PERSIST_DIR,
+        collection_configuration={"hnsw": {"space": "cosine"}}
     )
