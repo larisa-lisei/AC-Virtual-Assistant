@@ -32,6 +32,9 @@ def get_current_user(
         )
     try:
         payload = decode_token(token)
+        user_id = payload["sub"]
+        email = payload["email"]
+        exp = payload["exp"]
     except JWTError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -49,11 +52,11 @@ def get_current_user(
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "User account no longer exists.")
 
     return CurrentUser(
-        id=payload["sub"],
-        email=payload["email"],
-        role=payload["role"],
+        id=user_id,
+        email=email,
+        role=user["role"],
         token=token,
-        exp=payload["exp"]
+        exp=exp
     )
 
 def require_role(*roles: str):
@@ -65,17 +68,3 @@ def require_role(*roles: str):
             )
         return current_user
     return guard
-
-def require_same_user(path_param):
-    def guard(
-        request: Request,
-        current_user: CurrentUser = Depends(get_current_user)
-    ) -> CurrentUser:
-        target_id = request.path_params.get(path_param)
-        if current_user.id != target_id:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="You can only access your own resources."
-            )
-        return current_user
-    return guard  

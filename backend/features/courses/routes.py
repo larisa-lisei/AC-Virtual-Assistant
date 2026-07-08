@@ -16,7 +16,8 @@ router = APIRouter(prefix="/api/courses")
 @router.get(
     "",
     response_model=list[CourseResponse],
-    status_code=status.HTTP_200_OK
+    status_code=status.HTTP_200_OK,
+    dependencies=[Depends(require_role(UserRole.admin.value))]
 )
 def get_courses(
     program: ProgramType | None = None,
@@ -30,7 +31,7 @@ def get_courses(
     status_code=status.HTTP_200_OK
 )
 def get_teaching_courses(
-    current_user: CurrentUser = Depends(require_role(UserRole.professor)),
+    current_user: CurrentUser = Depends(require_role(UserRole.professor.value)),
     course_service: CourseService = Depends(get_course_service)
 ):
     return course_service.get_courses_professor(current_user)
@@ -41,24 +42,23 @@ def get_teaching_courses(
     status_code=status.HTTP_200_OK
 )
 def get_learning_courses(
-    current_user: CurrentUser = Depends(require_role(UserRole.student)),
+    current_user: CurrentUser = Depends(require_role(UserRole.student.value)),
     course_service: CourseService = Depends(get_course_service)
 ):
     return course_service.get_courses_student(current_user)
 
 @router.delete(
     "/{course_id}",
-    status_code=status.HTTP_204_NO_CONTENT
+    status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Depends(require_role(UserRole.admin.value))]
 )
 def delete_course(
     course_id: str,
-    current_user: CurrentUser = Depends(require_role(UserRole.admin)),
     course_service: CourseService = Depends(get_course_service)
 ):
     try:
         course_service.delete_course(
             course_id=course_id,
-            current_user=current_user
         )
     except InvalidIdError as e:
         raise HTTPException(
@@ -70,11 +70,6 @@ def delete_course(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Course with id {e.course_ids[0]} not found."
         )
-    except CourseAccessDeniedError as e:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail=str(e)
-        )
 
 @router.patch(
     "/{course_id}/hints-only",
@@ -83,7 +78,7 @@ def delete_course(
 def update_hints_only(
     course_id: str,
     request: CourseHintsSettings,
-    current_user: CurrentUser = Depends(require_role(UserRole.professor)),
+    current_user: CurrentUser = Depends(require_role(UserRole.professor.value)),
     course_service: CourseService = Depends(get_course_service)
 ):
     try:

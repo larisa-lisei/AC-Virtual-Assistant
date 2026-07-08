@@ -5,8 +5,6 @@ from db.mongo import db
 class FeedbackRepository:
     def __init__(self):
         self.collection = db["student_question_logs"]
-        self.collection.create_index("course_id")
-        self.collection.create_index("created_at")
 
     def save_question_log(self, course_id, course_name, question, answer_status, answer_preview):
         document = {

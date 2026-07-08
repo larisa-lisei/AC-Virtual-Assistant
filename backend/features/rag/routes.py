@@ -1,3 +1,5 @@
+from functools import lru_cache
+
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
 
 from .schemas import (
@@ -13,7 +15,7 @@ from .exceptions import(
     DocumentNotFoundError
 )
 
-from .llm_service import LlmService
+from .llm_service import LlmService, get_llm_service
 from features.auth.dependencies import get_current_user, require_role
 from features.auth.schemas import CurrentUser
 from features.courses.dependencies import get_course_service
@@ -27,12 +29,18 @@ from features.conversations.schemas import ConversationHistoryResponse
 
 router = APIRouter(prefix="/api/courses")
 
+@lru_cache
+def get_rag_repository() -> RagRepository:
+    return RagRepository()
+
 def get_rag_service(
+    rag_repository: RagRepository = Depends(get_rag_repository),
+    llm_service: LlmService = Depends(get_llm_service),
     course_service = Depends(get_course_service),
     feedback_service = Depends(get_feedback_service),
     conversation_service = Depends(get_conversation_service)
 ) -> RagService:
-    return RagService(RagRepository(), LlmService(), feedback_service, course_service, conversation_service)
+    return RagService(rag_repository, llm_service, feedback_service, course_service, conversation_service)
 
 @router.post(
     "/{course_id}/documents",
@@ -146,7 +154,7 @@ def delete_uploaded_document(
 def ask_question(
     course_id: str,
     request: ChatRequest,
-    current_user: CurrentUser = Depends(get_current_user),
+    current_user: CurrentUser = Depends(require_role(UserRole.student.value, UserRole.professor.value)),
     rag_service: RagService = Depends(get_rag_service)
 ):
     try:
@@ -189,7 +197,7 @@ def ask_question(
 )
 def get_active_conversation(
     course_id: str,
-    current_user: CurrentUser = Depends(get_current_user),
+    current_user: CurrentUser = Depends(require_role(UserRole.student.value, UserRole.professor.value)),
     rag_service: RagService = Depends(get_rag_service)
 ):
     try:
@@ -216,7 +224,7 @@ def get_active_conversation(
 )
 def delete_active_conversation(
     course_id: str,
-    current_user: CurrentUser = Depends(get_current_user),
+    current_user: CurrentUser = Depends(require_role(UserRole.student.value, UserRole.professor.value)),
     rag_service: RagService = Depends(get_rag_service)
 ):
     try:

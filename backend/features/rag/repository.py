@@ -15,15 +15,15 @@ class RagRepository:
         self,
         query: str,
         course_id: str,
-        relevant_chunks: int = 4,
-        score_threshold: float = 1.0
+        relevant_chunks,
+        score_threshold
     ) -> list[tuple[Document, float]]:
         results = self.vector_store.similarity_search_with_score(
             query=query,
             k=relevant_chunks,
             filter={"course_id": course_id}
         )
-
+        
         return [(doc, score) for doc, score in results if score <= score_threshold]
 
     

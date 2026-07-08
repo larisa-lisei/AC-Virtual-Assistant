@@ -1,12 +1,9 @@
-from typing import Optional
-
 from pydantic import BaseModel, Field
-from ..conversations.enums import ConvRole
    
 class DocumentUploadResponse(BaseModel):
-    doc_id: str = Field(..., min_length=1)
-    filename: str = Field(..., min_length=1)
-    chunks_indexed: int = Field(..., ge=1)
+    doc_id: str 
+    filename: str
+    chunks_indexed: int
 
 class ChatRequest(BaseModel):
     question: str = Field(..., min_length=1, max_length=2000)
@@ -14,11 +11,11 @@ class ChatRequest(BaseModel):
 
 class SourceChunk(BaseModel):
     content: str
-    page: Optional[int] = None
-    filename: Optional[str] = None
-    chunk_index: Optional[int] = None
+    page: int | None = None
+    filename: str | None = None
+    chunk_index: int | None = None
 
 class ChatResponse(BaseModel):
     conversation_id: str
     answer: str
-    sources: list[SourceChunk]
+    sources: list[SourceChunk] = Field(default_factory=list)

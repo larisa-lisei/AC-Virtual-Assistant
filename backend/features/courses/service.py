@@ -137,12 +137,8 @@ class CourseService:
             for course in courses
         ]
     
-    def delete_course(self, course_id, current_user):
-        validate_id(course_id)
-        course = self.ensure_professor_can_manage_course(
-            current_user=current_user,
-            course_id=course_id
-        )
+    def delete_course(self, course_id):
+        course = self.get_course_by_id(course_id)
       
         self.user_repository.remove_course_from_professors(course["_id"])
         self.repository.delete_course_by_id(course["_id"])

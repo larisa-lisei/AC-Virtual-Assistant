@@ -34,7 +34,7 @@ class CourseRepository:
     # professor search
     def find_course_ids_by_name(self, search: str) -> list[str]:
         courses = list(
-            self.course_collection.find({
+            self.courses_collection.find({
                 "name": {
                     "$regex": re.escape(search),
                     "$options": "i"

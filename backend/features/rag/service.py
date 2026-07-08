@@ -64,6 +64,8 @@ class RagService:
         try:
             with open(file_path, "wb") as buffer:
                 shutil.copyfileobj(file.file, buffer)
+
+            file_saved = True
             
             loader = PyPDFLoader(file_path)
             raw_documents = loader.load()
@@ -71,7 +73,7 @@ class RagService:
             if not raw_documents:
                 raise InvalidDocumentError("No readable text found in PDF.")
             
-            # split into chunks for better embedding and retrieval performance
+            # split into chunks 
             split_documents = self.text_splitter.split_documents(raw_documents)
 
             if not split_documents:
@@ -117,10 +119,13 @@ class RagService:
                 filename=original_filename,
                 chunks_indexed=len(final_documents)
             )
-        
         except InvalidDocumentError:
+            if file_saved and os.path.exists(file_path):
+                os.remove(file_path)
             raise
         except Exception:
+            if file_saved and os.path.exists(file_path):
+                os.remove(file_path)
             raise DocumentProcessingError(file.filename)
         finally:
             file.file.close()
@@ -316,18 +321,6 @@ class RagService:
             conversation_type=ConvType.course_assistant
         )
 
-    def _retrieve_relevant_documents(
-        self,
-        course_id: str,
-        question: str,
-    ) -> list[tuple[Document, float]]:
-        return self.repository.similarity_search_by_course(
-            query=question,
-            course_id=course_id,
-            relevant_chunks=settings.DEFAULT_RELEVANT_CHUNKS,
-            score_threshold=settings.RAG_SCORE_THRESHOLD
-        )
-    
     def _build_retrieval_query(self, question, recent_messages: list[dict]):
         if not recent_messages:
             return question
@@ -353,6 +346,34 @@ class RagService:
             formatted_messages.append(f"{sender}: {content}")
 
         return "\n".join(formatted_messages)
+    
+    def _retrieve_relevant_documents(
+        self,
+        course_id: str,
+        question: str,
+    ) -> list[tuple[Document, float]]:
+        return self.repository.similarity_search_by_course(
+            query=question,
+            course_id=course_id,
+            relevant_chunks=settings.DEFAULT_RELEVANT_CHUNKS,
+            score_threshold=settings.RAG_SCORE_THRESHOLD
+        )
+    
+    def _format_context(self, retrieved_docs: list[tuple[Document, float]]):
+        if not retrieved_docs:
+            return "No relevant course context was found."
+        
+        formatted_chunks: list[str] = []
+
+        for index, (doc, _) in enumerate(retrieved_docs, start=1):
+            page = doc.metadata.get("page")
+            filename = doc.metadata.get("filename")
+
+            formatted_chunks.append(
+                f"[Source {index} | filename={filename} | page={page}]\n{doc.page_content}"
+            )
+
+        return "\n\n".join(formatted_chunks)
 
     def _build_prompt(
         self,
@@ -394,29 +415,38 @@ answer normally and completely.
 Hints-only is DISBALED.
 
 You may provide complete explanations and complete solutions when they are
-supported by the course context.
+supported by the COURSE CONTEXT.
 """
         )
 
-        return f"""
+        return rf"""
 You are a virtual assistant specialized in the course "{course_name}".
 
-Your role is to help students understand the course materials using the provided context.
+Your role is to help students understand the course materials using the provided COURSE CONTEXT.
 
-You will be given context extracted from documents uploaded by the professor for this course.
+You receive:
+    1. the previous conversation between the student and the assistant;
+    2. course context extracted from documents uploaded by the professor;
+    3. the student's current question.
 
-Rules:
-- Answer only based on the provided context.
+Conversation rules:
+- First examine only the CONVERSATION HISTORY and the CURRENT STUDENT QUESTION.
 - Use the conversation history only to understand follow-up questions and references.
 - Do not use conversation history as proof for factual information unless it is supported by the course context.
-- If the context is insufficient, clearly say that the information is not available in the course materials.
-- If the course context does not provide a complete list when the user asks for one, say that the list may be incomplete.
+- IMPORTANT: If there is no previous conversation and the current question depends on an earlier message, ask the student for clarification and stop.
+- If multiple interpretations are possible, ask which concept or operation the student is referring to.    
+
+Rules:
+- Answer only based on the provided COURSE CONTEXT.
+- If the course context is insufficient, clearly say that the information is not available in the course materials.
+- If the course context does not provide a complete list when the student asks for one, say that the list may be incomplete.
 - Do not invent information.
 - Explain clearly and simply, in a structured way suitable for students.
 - Break down complex ideas step by step when helpful.
 - If a source chunk is clearly unrelated to the question, ignore it entirely.
-- When you use information from a context chunk, mention the document name and page naturally, for example: (AlPD_cursuri.pdf, p. 25).
-- Do not copy raw context labels such as "Context chunk", "Document:", "Page:", or "[Source ...]" into the answer.
+- When you use information from a course context chunk, mention the document name and page naturally, for example: (AlPD_cursuri.pdf, p. 25).
+- Do not copy raw course context labels such as "Context chunk", "Document:", "Page:", or "[Source ...]" into the answer.
+- Do not repeat the same document and page reference multiple times within the same paragraph or list.
 
 Language rules:
 - You MUST answer in the same language as the CURRENT STUDENT QUESTION.
@@ -432,10 +462,10 @@ Formatting rules:
 Exercise assistance rules:
 {exercise_guidance}
 
-Conversation history:
+CONVERSATION HISTORY:
 {conversation_history}
 
-Context:
+COURSE CONTEXT:
 {context}
 
 CURRENT STUDENT QUESTION:
@@ -443,22 +473,5 @@ CURRENT STUDENT QUESTION:
 
 Answer:
 """.strip()
-    
-
-    def _format_context(self, retrieved_docs: list[tuple[Document, float]]):
-        if not retrieved_docs:
-            return "No relevant course context was found."
-        
-        formatted_chunks: list[str] = []
-
-        for index, (doc, _) in enumerate(retrieved_docs, start=1):
-            page = doc.metadata.get("page")
-            filename = doc.metadata.get("filename")
-
-            formatted_chunks.append(
-                f"[Source {index} | filename={filename} | page={page}]\n{doc.page_content}"
-            )
-
-        return "\n\n".join(formatted_chunks)
 
         

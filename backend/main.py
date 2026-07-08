@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.params import Depends
+from features.users.enums import UserRole
 from features.users.routes import router as users_router
 from features.courses.routes import router as courses_router
 from features.auth.routes import router as auth_router
@@ -28,7 +29,7 @@ app.add_middleware(
 )
 
 app.include_router(auth_router)
-app.include_router(users_router, dependencies=[Depends(require_role("admin"))])
+app.include_router(users_router, dependencies=[Depends(require_role(UserRole.admin.value))])
 app.include_router(courses_router)
 app.include_router(rag_router)
 app.include_router(feedback_router)
