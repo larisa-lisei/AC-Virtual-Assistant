@@ -28,7 +28,7 @@ def get_current_user(
     if not token:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Not authenicated."
+            detail="Not authenticated."
         )
     try:
         payload = decode_token(token)
@@ -47,7 +47,7 @@ def get_current_user(
             detail="Token has been invalidated."
         )
     
-    user = user_repo.find_by_id(payload["sub"])
+    user = user_repo.find_by_id(user_id)
     if not user:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "User account no longer exists.")
 

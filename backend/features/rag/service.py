@@ -112,6 +112,7 @@ class RagService:
                 )
                 ids.append(f"{doc_id}_chunk_{index}")
 
+            # embedding
             self.repository.add_documents(final_documents, ids)
 
             return DocumentUploadResponse(
