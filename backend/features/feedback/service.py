@@ -99,6 +99,45 @@ class FeedbackService:
             return text[:150]
         
         return first_sentence
+    
+    def _format_questions_logs(self, question_logs: list[dict]):
+        formatted_logs: list[str] = []
+
+        for _, log in enumerate(question_logs, start=1):
+            answer_preview = (
+                log.get("answer_preview")
+                or "No answer preview available."
+            )
+            formatted_logs.append( 
+                "<student_question_log>\n" 
+                f"Timestamp: {log.get('created_at')}\n" 
+                f"Internal answer status: {log.get('answer_status')}\n" 
+                f"Student question: {log.get('question')}\n" 
+                f"Answer preview: {answer_preview}\n" 
+                "</student_question_log>" 
+            )
+
+        return "\n\n".join(formatted_logs)
+    
+    def _format_conversation_history(self, messages: list[dict]):
+        if not messages:
+            return "No previous feedback conversation."
+        
+        formatted_messages: list[str] = []
+
+        for message in messages:
+            sender = message.get("sender", ConvRole.user.value)
+            sender_label = (
+                "Professor"
+                if sender == ConvRole.user.value
+                else "Assistant"
+            )
+
+            content = message.get("content", "")
+
+            formatted_messages.append(f"{sender_label}: {content}")
+
+        return "\n".join(formatted_messages)
 
     def _build_feedback_prompt(self, course_name, question_logs: list[dict], recent_messages, professor_question):
         formatted_logs = self._format_questions_logs(question_logs)
@@ -177,42 +216,3 @@ STUDENT LOGS:
 CURRENT PROFESSOR QUESTION:
 {professor_question}
 """.strip()
-    
-    def _format_questions_logs(self, question_logs: list[dict]):
-        formatted_logs: list[str] = []
-
-        for _, log in enumerate(question_logs, start=1):
-            answer_preview = (
-                log.get("answer_preview")
-                or "No answer preview available."
-            )
-            formatted_logs.append( 
-                "<student_question_log>\n" 
-                f"Timestamp: {log.get('created_at')}\n" 
-                f"Internal answer status: {log.get('answer_status')}\n" 
-                f"Student question: {log.get('question')}\n" 
-                f"Answer preview: {answer_preview}\n" 
-                "</student_question_log>" 
-            )
-
-        return "\n\n".join(formatted_logs)
-    
-    def _format_conversation_history(self, messages: list[dict]):
-        if not messages:
-            return "No previous feedback conversation."
-        
-        formatted_messages: list[str] = []
-
-        for message in messages:
-            sender = message.get("sender", ConvRole.user.value)
-            sender_label = (
-                "Professor"
-                if sender == ConvRole.user.value
-                else "Assistant"
-            )
-
-            content = message.get("content", "")
-
-            formatted_messages.append(f"{sender_label}: {content}")
-
-        return "\n".join(formatted_messages)
